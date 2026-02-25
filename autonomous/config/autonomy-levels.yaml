@@ -1,0 +1,41 @@
+# Autonomy Levels — LaunchPad
+# These define what the system can do without user approval.
+# For v1 (personal tool), most "autonomous" actions are really
+# scheduled tasks and AI-powered features, not independent agents.
+
+tiers:
+  tier_1_fully_autonomous:
+    description: "Runs without any approval needed"
+    actions:
+      - Reddit keyword monitoring
+      - Metrics recalculation
+      - Activity feed updates
+      - Prospect score caching
+      - Email open/click tracking
+      - Cost tracking updates
+
+  tier_2_autonomous_with_notification:
+    description: "Runs automatically, notifies user after"
+    actions:
+      - Scheduled sequence emails (already approved at creation)
+      - Daily report generation
+      - Metric anomaly alerts
+      - Follow-up reminders
+
+  tier_3_recommend_and_wait:
+    description: "Proposes action, waits for user approval"
+    actions:
+      - New email drafts
+      - New prospect suggestions
+      - Campaign optimization recommendations
+      - Template improvements
+      - Overachiever suggestions
+
+  tier_4_human_only:
+    description: "System cannot execute these"
+    actions:
+      - API key changes
+      - VA invitations
+      - Data deletion
+      - Campaign deletion
+      - Any external API call that costs money (Apify scrapes)

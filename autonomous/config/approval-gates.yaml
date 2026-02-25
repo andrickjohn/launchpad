@@ -1,0 +1,25 @@
+# Approval Gates — LaunchPad
+# Every action that needs approval before execution
+
+gates:
+  email_send:
+    description: "Sending any email to a prospect"
+    approval_type: "explicit"      # User must click approve
+    batch_approval: true           # Can approve multiple at once
+    auto_expire_hours: 72          # Drafts expire after 3 days
+
+  apify_scrape:
+    description: "Running an Apify scrape (costs money)"
+    approval_type: "explicit"
+    show_cost_estimate: true       # Show estimated cost before approval
+    auto_expire_hours: 24
+
+  sequence_creation:
+    description: "Creating a new email sequence"
+    approval_type: "explicit"      # Approve the sequence, not each email
+    note: "Individual emails in approved sequence send on schedule"
+
+  campaign_creation:
+    description: "Creating a new campaign"
+    approval_type: "explicit"
+    note: "Campaign Wizard output is a recommendation — user reviews before activating"

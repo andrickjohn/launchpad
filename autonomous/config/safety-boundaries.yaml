@@ -1,0 +1,21 @@
+# Safety Boundaries — LaunchPad
+
+safety_rules:
+  max_emails_per_day: 100          # Resend free tier limit
+  max_follow_ups_per_prospect: 3
+  cooldown_between_emails_hours: 48
+  require_unsubscribe_link: false  # Personal tool, not mass marketing
+  sentiment_floor: "neutral"       # AI drafts must be professional
+  daily_digest: true               # Summary of all automated actions
+  emergency_stop: true             # User can halt all automation instantly
+  mock_mode_default: true          # Dev mode: no real API calls
+
+cost_controls:
+  monthly_budget_alert: 10         # Alert at $10/month
+  per_scrape_approval: true        # Apify scrapes need explicit approval
+  ai_draft_daily_limit: 200        # Claude Haiku calls per day
+
+audit_trail:
+  log_every_action: true
+  log_format: "timestamp | action | target | result | cost_estimate"
+  retention_days: 90
