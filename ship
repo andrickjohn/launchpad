@@ -1,0 +1,38 @@
+#!/bin/bash
+echo "🚢 Preparing to ship..."
+git fetch origin
+
+LOCAL=$(git rev-parse @ 2>/dev/null)
+REMOTE=$(git rev-parse @{u} 2>/dev/null)
+BASE=$(git merge-base @ @{u} 2>/dev/null)
+
+if [[ "$LOCAL" != "$REMOTE" && "$LOCAL" != "$BASE" && "$REMOTE" != "$BASE" ]]; then
+    echo "🚨 Warning: Local and remote have diverged! You should './sync' first."
+    exit 1
+elif [[ "$LOCAL" == "$BASE" && "$LOCAL" != "$REMOTE" ]]; then
+    echo "🚨 Warning: Remote has newer changes! You should './sync' first to avoid overwriting."
+    exit 1
+fi
+
+echo "📦 Uncommitted / modified files:"
+git status -s
+
+if [[ -z $(git status -s) && "$LOCAL" == "$REMOTE" ]]; then
+    echo "✅ Nothing to ship. Directory is clean."
+    exit 0
+fi
+
+read -p "Proceed with adding all changes, committing, and pushing? (y/N) " -n 1 -r
+echo
+if [[ "$REPLY" =~ ^[Yy]$ ]]; then
+    read -p "Enter commit message: " msg
+    if [[ -z "$msg" ]]; then
+        msg="Update from launchpad terminal"
+    fi
+    git add .
+    git commit -m "$msg"
+    git push origin main
+    echo "✅ Shipped successfully."
+else
+    echo "❌ Ship cancelled."
+fi

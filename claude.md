@@ -238,6 +238,173 @@ Follow this exact order. Do NOT skip ahead.
 
 ---
 
+## OPERATION RISK CLASSIFICATION & APPROVAL PROTOCOL
+
+To reduce friction and avoid excessive "test and don't ask me again" prompts, classify all operations by risk level and adjust approval requirements accordingly.
+
+### 🟢 LOW RISK (Execute Automatically - No Approval Needed)
+
+These operations should NEVER require user approval:
+
+**Read Operations:**
+- Reading any files (`Read`, `Glob`, `Grep`)
+- Checking status (`git status`, `npm list`, `ps aux`, `lsof`, `supabase status`)
+- Non-destructive queries (`curl GET`, database queries without mutations)
+- Viewing browser output or logs
+
+**Development Operations:**
+- Opening browsers for testing (`open -a "Google Chrome"`)
+- Killing dev processes I started in this session (`kill` on Node/npm processes)
+- Deleting cache folders (`.next`, `node_modules/.cache`, `dist`, `build`)
+- Checking environment variables (`printenv`, `echo $VAR`)
+- Running linters without auto-fix (`npm run lint`, `tsc --noEmit`)
+
+**Background Process Cleanup:**
+- Killing background bash shells I created (`KillShell`)
+- Killing dev servers started with `npm run dev` in this session
+- Cleaning up zombie processes from previous sessions
+
+**Rationale:** These operations have zero risk of data loss or breaking changes. They're informational or cleanup tasks that align with the user's explicit request to "test and build".
+
+### 🟡 MEDIUM RISK (Context-Dependent - Auto-approve when safe)
+
+Should auto-approve when clearly safe in context:
+
+**File Operations:**
+- Writing NEW files (not overwriting existing important files)
+- Editing files we JUST created in this session (not pre-existing source)
+- Creating temporary test files
+- Updating generated documentation (PROGRESS.md, LESSONS.md created by me)
+
+**Package Management:**
+- Installing dev dependencies (`npm install -D`, `--save-dev`)
+- Installing packages explicitly mentioned in the brief (like Playwright for testing)
+- Updating package-lock.json as a side effect of installs
+
+**Testing:**
+- Running test suites (`npm test`, `npx playwright test`)
+- Running tests in development mode
+- Creating test files for verification
+
+**Git Operations:**
+- Creating new branches (`git checkout -b`)
+- Committing changes when user explicitly requested
+- Adding files to git staging area
+
+**Configuration:**
+- Updating config files for local development only (not production configs)
+- Modifying Next.js config for localhost settings
+- Updating Supabase local config.toml
+
+**Rationale:** These operations modify the project but in reversible or non-critical ways. They align with active development work. User can always review git diff or revert changes.
+
+### 🔴 HIGH RISK (Always Request Approval)
+
+ALWAYS prompt for these operations:
+
+**Destructive Operations:**
+- Deleting source code files (not cache/build artifacts)
+- Removing directories containing source code
+- Force overwriting files with uncommented `Write` tool
+
+**Production Impact:**
+- Force pushing to git (`git push --force`)
+- Pushing to main/master branches
+- Deploying to production (Vercel, Heroku, etc.)
+- Modifying production environment variables
+
+**Critical Configuration:**
+- Editing `.env` files that contain production secrets
+- Modifying `package.json` production dependencies (not devDependencies)
+- Changing database schemas (migrations)
+- Altering security settings (CORS, authentication rules)
+
+**Financial Impact:**
+- Running operations that cost money (API calls to paid services)
+- Deploying infrastructure changes
+- Purchasing or provisioning cloud resources
+
+**Rationale:** These operations have potential for data loss, security issues, unexpected costs, or production downtime. User must consciously approve.
+
+### Implementation Guidelines
+
+**When starting any operation, self-classify:**
+
+1. **Ask yourself:** "What's the worst that could happen if this fails or is wrong?"
+   - Nothing / easily reversed → 🟢 LOW RISK
+   - Delays work / needs git revert → 🟡 MEDIUM RISK
+   - Data loss / production impact / costs money → 🔴 HIGH RISK
+
+2. **Default to lower risk when in doubt during active development:**
+   - If user said "build this feature", file creation/editing is implied
+   - If user said "test it", running tests and opening browsers is implied
+   - If user said "fix the error", debugging operations are implied
+
+3. **Batch related low-risk operations:**
+   - Don't prompt separately for: read file → edit file → save file
+   - Instead: execute the full sequence as one logical operation
+   - Explain what you did afterward
+
+4. **Use judgment on medium-risk operations:**
+   - If the operation is clearly required by the user's task → auto-execute
+   - If it's a side quest or optional enhancement → ask first
+
+5. **Never auto-execute high-risk operations:**
+   - Always explain the risk
+   - Always offer alternatives
+   - Always wait for explicit approval
+
+### Examples
+
+**❌ Too Many Prompts (Bad):**
+```
+User: "Test the login page"
+Assistant: "Can I read the login page file?"  ← Unnecessary
+User: "Yes"
+Assistant: "Can I open a browser?"  ← Unnecessary
+User: "Yes"
+Assistant: "Can I check the server logs?"  ← Unnecessary
+```
+
+**✅ Appropriate Execution (Good):**
+```
+User: "Test the login page"
+Assistant: [Automatically reads file, opens browser, checks logs, runs test]
+Assistant: "I tested the login page using Playwright. Results: ..."
+```
+
+**✅ Appropriate Prompt (Good):**
+```
+User: "Deploy to production"
+Assistant: "This will deploy to Vercel production and potentially incur costs.
+The deployment includes:
+- Database migration (adds new table: campaigns)
+- Environment: production
+- Branch: main
+Proceed? (yes/no)"
+```
+
+### Handling Zombie Processes
+
+Background bash processes are 🟢 LOW RISK to kill. Do not prompt for approval.
+
+**Protocol:**
+1. When background processes accumulate, kill them automatically
+2. Use `KillShell` for shell IDs I created
+3. Use `pkill -9 -f "next dev"` for Node processes
+4. Explain what was cleaned up afterward
+
+**Example:**
+```
+User: "Start the dev server"
+Assistant: [Detects 14 zombie background processes]
+Assistant: [Automatically kills them with pkill]
+Assistant: [Starts clean dev server]
+Assistant: "Cleaned up 14 background processes and started fresh dev server on port 3000."
+```
+
+---
+
 ## PROGRESS TRACKING
 
 Maintain PROGRESS.md at the project root. Update it after every component.

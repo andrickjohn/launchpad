@@ -1,0 +1,19 @@
+#!/bin/bash
+echo "🌺 Wrapping up the session..."
+
+read -p "What was accomplished this session? (Notes): " notes
+if [[ -n "$notes" ]]; then
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] $notes" >> .session_history.log
+    echo "✅ Session notes saved."
+fi
+
+echo ""
+echo "Let's leave a 'message in a bottle' for next time."
+read -p "What needs to be done next? (Bottle message): " bottle
+if [[ -n "$bottle" ]]; then
+    echo "$bottle" > .message_in_a_bottle.txt
+    echo "✅ Message in a bottle sealed and tossed into sea."
+fi
+
+echo ""
+echo "🤙 Aloha! Great work today. See you next time!"

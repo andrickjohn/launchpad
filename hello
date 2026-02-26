@@ -1,0 +1,21 @@
+#!/bin/bash
+echo "🌴 Aloha! Welcome back to launchpad."
+echo ""
+
+if [[ -f .message_in_a_bottle.txt ]]; then
+    echo "🌊 You found a message in a bottle from your last session:"
+    echo "------------------------------------------------------"
+    cat .message_in_a_bottle.txt
+    echo "------------------------------------------------------"
+    echo ""
+else
+    echo "No message in a bottle found."
+    echo ""
+fi
+
+echo "Checking the radar for strange behavior or missing/extra files..."
+git fetch origin > /dev/null 2>&1
+git status
+
+echo ""
+echo "Ready to launch!"

@@ -1,0 +1,36 @@
+#!/bin/bash
+echo "🔄 Checking for latest updates..."
+git fetch origin
+
+LOCAL=$(git rev-parse @ 2>/dev/null || echo "LOCAL")
+REMOTE=$(git rev-parse @{u} 2>/dev/null || echo "REMOTE")
+BASE=$(git merge-base @ @{u} 2>/dev/null || echo "BASE")
+
+if [[ "$LOCAL" == "$REMOTE" ]]; then
+    echo "✅ Up-to-date with remote. No missing or extra files to sync."
+elif [[ "$LOCAL" == "$BASE" ]]; then
+    echo "⚠️ Remote has newer changes."
+    git diff --stat @...@{u}
+    read -p "Do you want to pull these changes and overwrite local? (y/N) " -n 1 -r
+    echo
+    if [[ "$REPLY" =~ ^[Yy]$ ]]; then
+        git pull origin main
+        echo "✅ Sync complete."
+    else
+        echo "❌ Sync cancelled."
+    fi
+elif [[ "$REMOTE" == "$BASE" ]]; then
+    echo "🌟 Your local version is newer than the remote!"
+    echo "💡 You should run './ship' to push these changes up to GitHub safely."
+else
+    echo "🚨 Warning: Local and remote have diverged! Strange behavior detected."
+    git diff --stat @...@{u}
+    read -p "Do you want to attempt a rebase pull? (y/N) " -n 1 -r
+    echo
+    if [[ "$REPLY" =~ ^[Yy]$ ]]; then
+        git pull --rebase origin main
+        echo "✅ Sync complete."
+    else
+        echo "❌ Sync cancelled. Please resolve manually."
+    fi
+fi
