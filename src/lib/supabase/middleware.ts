@@ -36,7 +36,12 @@ export async function updateSession(request: NextRequest) {
   )
 
   // Refresh session if expired
-  await supabase.auth.getUser()
+  try {
+    await supabase.auth.getUser()
+  } catch (error) {
+    // Silently fail - user just won't be authenticated
+    console.error('Supabase auth error in middleware:', error)
+  }
 
   return response
 }
