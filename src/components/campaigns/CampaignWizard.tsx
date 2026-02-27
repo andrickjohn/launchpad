@@ -22,12 +22,20 @@ interface LaunchBrief {
   key_insights: string[]
 }
 
+interface ModelInfo {
+  tier: string
+  id: string
+  name: string
+  version: string
+}
+
 export default function CampaignWizard() {
   const router = useRouter()
   const [step, setStep] = useState(1)
   const [isGenerating, setIsGenerating] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [launchBrief, setLaunchBrief] = useState<LaunchBrief | null>(null)
+  const [modelInfo, setModelInfo] = useState<ModelInfo | null>(null)
 
   // Form data
   const [campaignName, setCampaignName] = useState('')
@@ -59,12 +67,48 @@ export default function CampaignWizard() {
 
       const data = await response.json()
       setLaunchBrief(data.brief)
+      setModelInfo(data.model)
       setStep(3)
     } catch (error) {
       console.error('Error generating brief:', error)
       alert('Failed to generate launch brief. Please try again.')
     } finally {
       setIsGenerating(false)
+    }
+  }
+
+  const handleSaveDraft = async () => {
+    setIsSaving(true)
+    try {
+      const response = await fetch('/api/campaigns', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: campaignName || 'Draft Campaign',
+          description,
+          product_description: productDescription,
+          target_buyer: targetBuyer,
+          price_point: pricePoint,
+          geography,
+          launch_brief: null,
+          is_active: false,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to save draft')
+      }
+
+      const data = await response.json()
+      alert('Draft saved! You can edit it later from the Prospects screen.')
+      router.push('/prospects')
+    } catch (error) {
+      console.error('Error saving draft:', error)
+      alert('Failed to save draft. Please try again.')
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -261,7 +305,7 @@ export default function CampaignWizard() {
               </div>
             </div>
 
-            <div className="flex justify-between">
+            <div className="flex justify-between items-center">
               <button
                 onClick={() => setStep(1)}
                 className="inline-flex items-center gap-2 px-6 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
@@ -270,23 +314,40 @@ export default function CampaignWizard() {
                 Back
               </button>
 
-              <button
-                onClick={handleGenerateBrief}
-                disabled={!productDescription.trim() || !targetBuyer.trim() || isGenerating}
-                className="inline-flex items-center gap-2 px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Generating Launch Brief...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-5 h-5" />
-                    Generate Launch Brief
-                  </>
-                )}
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleSaveDraft}
+                  disabled={!campaignName.trim() || isSaving}
+                  className="inline-flex items-center gap-2 px-6 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    'Save Draft'
+                  )}
+                </button>
+
+                <button
+                  onClick={handleGenerateBrief}
+                  disabled={!productDescription.trim() || !targetBuyer.trim() || isGenerating}
+                  className="inline-flex items-center gap-2 px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Generating Launch Brief...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-5 h-5" />
+                      Generate Launch Brief
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -295,6 +356,16 @@ export default function CampaignWizard() {
       {/* Step 3: Launch Brief */}
       {step === 3 && launchBrief && (
         <div className="space-y-6">
+          {/* AI Model Info Badge */}
+          {modelInfo && (
+            <div className="flex items-center justify-end gap-2 text-sm text-slate-600 dark:text-slate-400">
+              <Sparkles className="w-4 h-4 text-primary-500" />
+              <span>
+                Generated by <span className="font-medium text-slate-900 dark:text-white">{modelInfo.name}</span> ({modelInfo.version})
+              </span>
+            </div>
+          )}
+
           {/* Key Insights */}
           <div className="bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-lg p-6">
             <h3 className="text-lg font-semibold text-primary-900 dark:text-primary-100 mb-4">
