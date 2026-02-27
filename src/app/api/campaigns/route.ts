@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 
 /**
  * POST /api/campaigns
@@ -53,6 +54,9 @@ export async function POST(request: NextRequest) {
       console.error('Error creating campaign:', error)
       return NextResponse.json({ error: 'Failed to create campaign' }, { status: 500 })
     }
+
+    // Revalidate the prospects page to show the new campaign immediately
+    revalidatePath('/prospects')
 
     return NextResponse.json({ success: true, campaign })
   } catch (error) {

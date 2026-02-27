@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { Loader2, Sparkles, CheckCircle, ChevronRight, ChevronLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import type { Campaign } from '@/lib/types/database'
+import { useToast } from '@/components/ui/Toast'
+import Toast from '@/components/ui/Toast'
 
 interface LaunchBrief {
   channels: Array<{
@@ -36,6 +38,7 @@ interface CampaignWizardProps {
 
 export default function CampaignWizard({ existingCampaign }: CampaignWizardProps) {
   const router = useRouter()
+  const { toasts, removeToast, success, error } = useToast()
   const [step, setStep] = useState(1)
   const [isGenerating, setIsGenerating] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
@@ -60,7 +63,7 @@ export default function CampaignWizard({ existingCampaign }: CampaignWizardProps
       setPricePoint(existingCampaign.price_point || '')
       setGeography(existingCampaign.geography || '')
       if (existingCampaign.launch_brief) {
-        setLaunchBrief(existingCampaign.launch_brief as LaunchBrief)
+        setLaunchBrief(existingCampaign.launch_brief as unknown as LaunchBrief)
         setStep(3)
       }
     }
@@ -90,9 +93,9 @@ export default function CampaignWizard({ existingCampaign }: CampaignWizardProps
       setLaunchBrief(data.brief)
       setModelInfo(data.model)
       setStep(3)
-    } catch (error) {
-      console.error('Error generating brief:', error)
-      alert('Failed to generate launch brief. Please try again.')
+    } catch (err) {
+      console.error('Error generating brief:', err)
+      error('Failed to generate launch brief. Please try again.')
     } finally {
       setIsGenerating(false)
     }
@@ -126,12 +129,12 @@ export default function CampaignWizard({ existingCampaign }: CampaignWizardProps
         throw new Error('Failed to save draft')
       }
 
-      const data = await response.json()
+      await response.json()
+      success('Draft saved successfully!')
       router.push('/prospects')
-      router.refresh() // Force server component to refetch
-    } catch (error) {
-      console.error('Error saving draft:', error)
-      alert('Failed to save draft. Please try again.')
+    } catch (err) {
+      console.error('Error saving draft:', err)
+      error('Failed to save draft. Please try again.')
     } finally {
       setIsSaving(false)
     }
@@ -167,16 +170,28 @@ export default function CampaignWizard({ existingCampaign }: CampaignWizardProps
 
       const data = await response.json()
       const campaignId = existingCampaign?.id || data.campaign.id
+      success('Campaign saved successfully!')
       router.push(`/prospects?campaign=${campaignId}`)
-    } catch (error) {
-      console.error('Error saving campaign:', error)
-      alert('Failed to save campaign. Please try again.')
+    } catch (err) {
+      console.error('Error saving campaign:', err)
+      error('Failed to save campaign. Please try again.')
     } finally {
       setIsSaving(false)
     }
   }
 
   return (
+    <>
+      {/* Toast notifications */}
+      {toasts.map((toast) => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          onClose={() => removeToast(toast.id)}
+        />
+      ))}
+
     <div className="max-w-4xl mx-auto">
       {/* Progress Steps */}
       <div className="mb-8">
@@ -543,5 +558,6 @@ export default function CampaignWizard({ existingCampaign }: CampaignWizardProps
         </div>
       )}
     </div>
+    </>
   )
 }
