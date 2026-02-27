@@ -21,6 +21,7 @@ export default async function ProspectsPage() {
 
   const hasProspects = prospects.length > 0
   const hasDrafts = draftCampaigns.length > 0
+  const hasActiveCampaigns = activeCampaigns.length > 0
 
   return (
     <div>
@@ -118,6 +119,51 @@ export default async function ProspectsPage() {
                   >
                     <Edit className="h-4 w-4" />
                     Edit Draft
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Active Campaigns Section */}
+      {hasActiveCampaigns && (
+        <div className="mb-8">
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Sparkles className="h-5 w-5 text-green-600 dark:text-green-500" />
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                Active Campaigns
+              </h3>
+              <span className="text-sm text-slate-600 dark:text-slate-400">
+                ({activeCampaigns.length})
+              </span>
+            </div>
+            <div className="space-y-3">
+              {activeCampaigns.map((campaign) => (
+                <div
+                  key={campaign.id}
+                  className="flex items-center justify-between border border-slate-200 dark:border-slate-700 rounded-lg p-4"
+                >
+                  <div>
+                    <h4 className="font-medium text-slate-900 dark:text-white">
+                      {campaign.name}
+                    </h4>
+                    {campaign.description && (
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                        {campaign.description}
+                      </p>
+                    )}
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      Created {new Date(campaign.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <Link
+                    href={`/prospects?campaign=${campaign.id}`}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                  >
+                    View Prospects
                   </Link>
                 </div>
               ))}

@@ -127,8 +127,8 @@ export default function CampaignWizard({ existingCampaign }: CampaignWizardProps
       }
 
       const data = await response.json()
-      alert('Draft saved! You can edit it later from the Prospects screen.')
       router.push('/prospects')
+      router.refresh() // Force server component to refetch
     } catch (error) {
       console.error('Error saving draft:', error)
       alert('Failed to save draft. Please try again.')
