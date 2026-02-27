@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { getModelId, getModelInfo, MODEL_ASSIGNMENTS } from '@/lib/ai/models'
 
 /**
  * POST /api/campaigns/generate-brief
@@ -122,8 +123,13 @@ Respond with ONLY a JSON object in this exact format:
   "key_insights": ["<insight 1>", "<insight 2>", "<insight 3>"]
 }`
 
+    // Get the assigned model for this feature
+    const modelTier = MODEL_ASSIGNMENTS.launchBrief
+    const modelId = getModelId(modelTier)
+    const modelInfo = getModelInfo(modelTier)
+
     const message = await anthropic.messages.create({
-      model: 'claude-haiku-4-20250122',
+      model: modelId,
       max_tokens: 4000,
       messages: [
         {
@@ -149,6 +155,11 @@ Respond with ONLY a JSON object in this exact format:
     return NextResponse.json({
       success: true,
       brief,
+      model: {
+        name: modelInfo.name,
+        version: modelInfo.version,
+        id: modelId,
+      },
     })
 
   } catch (error) {
