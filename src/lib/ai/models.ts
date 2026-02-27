@@ -36,10 +36,10 @@ export const CLAUDE_MODELS: Record<ModelTier, ModelInfo> = {
     bestFor: ['Prospect scoring', 'Email drafting', 'Quick assists'],
   },
   sonnet: {
-    id: 'claude-sonnet-4-6',
-    name: 'Claude Sonnet 4.6',
+    id: 'claude-3-5-sonnet-20241022',
+    name: 'Claude 3.5 Sonnet',
     tier: 'sonnet',
-    version: '4.6 (Latest)',
+    version: '3.5 (Oct 2024)',
     costPer1MTokens: {
       input: 3.0,
       output: 15.0,
