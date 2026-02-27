@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { Users, Plus, Upload, Sparkles } from 'lucide-react'
+import { Users, Plus, Upload, Sparkles, Edit, FileText } from 'lucide-react'
 import { getProspects } from '@/lib/db/prospects'
 import { getCampaigns } from '@/lib/db/campaigns'
 import ProspectList from '@/components/prospects/ProspectList'
@@ -15,7 +15,12 @@ export default async function ProspectsPage() {
   const prospects = await getProspects()
   const campaigns = await getCampaigns()
 
+  // Separate draft and active campaigns
+  const draftCampaigns = campaigns.filter(c => !c.is_active)
+  const activeCampaigns = campaigns.filter(c => c.is_active)
+
   const hasProspects = prospects.length > 0
+  const hasDrafts = draftCampaigns.length > 0
 
   return (
     <div>
@@ -71,6 +76,55 @@ export default async function ProspectsPage() {
           </div>
         </div>
       </div>
+
+      {/* Draft Campaigns Section */}
+      {hasDrafts && (
+        <div className="mb-8">
+          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <FileText className="h-5 w-5 text-yellow-600 dark:text-yellow-500" />
+              <h3 className="text-lg font-semibold text-yellow-900 dark:text-yellow-100">
+                Draft Campaigns
+              </h3>
+              <span className="text-sm text-yellow-700 dark:text-yellow-300">
+                ({draftCampaigns.length})
+              </span>
+            </div>
+            <p className="text-sm text-yellow-800 dark:text-yellow-200 mb-4">
+              These campaigns are saved but not yet finalized. Continue editing to generate launch briefs.
+            </p>
+            <div className="space-y-3">
+              {draftCampaigns.map((campaign) => (
+                <div
+                  key={campaign.id}
+                  className="flex items-center justify-between bg-white dark:bg-slate-800 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4"
+                >
+                  <div>
+                    <h4 className="font-medium text-slate-900 dark:text-white">
+                      {campaign.name}
+                    </h4>
+                    {campaign.description && (
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                        {campaign.description}
+                      </p>
+                    )}
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      Created {new Date(campaign.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <Link
+                    href={`/campaigns/${campaign.id}/edit`}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
+                  >
+                    <Edit className="h-4 w-4" />
+                    Edit Draft
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Content */}
       {hasProspects ? (

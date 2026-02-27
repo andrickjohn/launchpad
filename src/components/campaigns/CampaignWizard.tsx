@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Loader2, Sparkles, CheckCircle, ChevronRight, ChevronLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import type { Campaign } from '@/lib/types/database'
 
 interface LaunchBrief {
   channels: Array<{
@@ -29,7 +30,11 @@ interface ModelInfo {
   version: string
 }
 
-export default function CampaignWizard() {
+interface CampaignWizardProps {
+  existingCampaign?: Campaign
+}
+
+export default function CampaignWizard({ existingCampaign }: CampaignWizardProps) {
   const router = useRouter()
   const [step, setStep] = useState(1)
   const [isGenerating, setIsGenerating] = useState(false)
@@ -44,6 +49,22 @@ export default function CampaignWizard() {
   const [pricePoint, setPricePoint] = useState('')
   const [geography, setGeography] = useState('')
   const [description, setDescription] = useState('')
+
+  // Load existing campaign data
+  useEffect(() => {
+    if (existingCampaign) {
+      setCampaignName(existingCampaign.name || '')
+      setDescription(existingCampaign.description || '')
+      setProductDescription(existingCampaign.product_description || '')
+      setTargetBuyer(existingCampaign.target_buyer || '')
+      setPricePoint(existingCampaign.price_point || '')
+      setGeography(existingCampaign.geography || '')
+      if (existingCampaign.launch_brief) {
+        setLaunchBrief(existingCampaign.launch_brief as LaunchBrief)
+        setStep(3)
+      }
+    }
+  }, [existingCampaign])
 
   const handleGenerateBrief = async () => {
     setIsGenerating(true)
@@ -80,8 +101,12 @@ export default function CampaignWizard() {
   const handleSaveDraft = async () => {
     setIsSaving(true)
     try {
-      const response = await fetch('/api/campaigns', {
-        method: 'POST',
+      const url = existingCampaign
+        ? `/api/campaigns/${existingCampaign.id}`
+        : '/api/campaigns'
+
+      const response = await fetch(url, {
+        method: existingCampaign ? 'PATCH' : 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -115,8 +140,12 @@ export default function CampaignWizard() {
   const handleSaveCampaign = async () => {
     setIsSaving(true)
     try {
-      const response = await fetch('/api/campaigns', {
-        method: 'POST',
+      const url = existingCampaign
+        ? `/api/campaigns/${existingCampaign.id}`
+        : '/api/campaigns'
+
+      const response = await fetch(url, {
+        method: existingCampaign ? 'PATCH' : 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -137,7 +166,8 @@ export default function CampaignWizard() {
       }
 
       const data = await response.json()
-      router.push(`/prospects?campaign=${data.campaign.id}`)
+      const campaignId = existingCampaign?.id || data.campaign.id
+      router.push(`/prospects?campaign=${campaignId}`)
     } catch (error) {
       console.error('Error saving campaign:', error)
       alert('Failed to save campaign. Please try again.')
