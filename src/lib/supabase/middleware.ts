@@ -12,6 +12,16 @@ export async function updateSession(request: NextRequest) {
     },
   })
 
+  // DEVELOPMENT ONLY: Bypass auth if DISABLE_AUTH is true
+  if (process.env.DISABLE_AUTH === 'true') {
+    // Allow access to all routes without authentication
+    // Redirect /login to /prospects
+    if (request.nextUrl.pathname === '/login') {
+      return NextResponse.redirect(new URL('/prospects', request.url))
+    }
+    return response
+  }
+
   // Check if environment variables are set
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY

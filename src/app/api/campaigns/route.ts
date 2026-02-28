@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { getAuthUser } from '@/lib/supabase/auth-bypass'
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 
@@ -10,8 +11,8 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
 
-    // Verify authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    // Verify authentication (with dev bypass support)
+    const { data: { user }, error: authError } = await getAuthUser(supabase)
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -73,8 +74,8 @@ export async function GET() {
   try {
     const supabase = await createClient()
 
-    // Verify authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    // Verify authentication (with dev bypass support)
+    const { data: { user }, error: authError } = await getAuthUser(supabase)
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }

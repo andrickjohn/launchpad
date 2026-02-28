@@ -8,6 +8,28 @@ import { cookies } from 'next/headers'
 export async function createClient() {
   const cookieStore = await cookies()
 
+  // DEVELOPMENT ONLY: Use service role key when auth is disabled
+  // This allows all database operations without authentication
+  if (process.env.DISABLE_AUTH === 'true' && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll()
+          },
+          setAll() {
+            // No-op for service role client
+          },
+        },
+        auth: {
+          persistSession: false,
+        },
+      }
+    )
+  }
+
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
