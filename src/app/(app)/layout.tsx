@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { getAuthUser } from '@/lib/supabase/auth-bypass'
 import Sidebar from '@/components/Sidebar'
 
 /**
@@ -14,10 +15,10 @@ export default async function AppLayout({
   const supabase = await createClient()
   const {
     data: { user },
-  } = await supabase.auth.getUser()
+  } = await getAuthUser(supabase)
 
-  // Redirect to login if not authenticated
-  if (!user) {
+  // Redirect to login if not authenticated (unless auth is disabled for dev)
+  if (!user && process.env.DISABLE_AUTH !== 'true') {
     redirect('/login')
   }
 
