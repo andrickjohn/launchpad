@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { Users, Plus, Upload, Sparkles, Edit, FileText } from 'lucide-react'
+import { Users, Plus, Upload, Sparkles, Edit, FileText, Eye } from 'lucide-react'
 import { getProspects } from '@/lib/db/prospects'
 import { getCampaigns } from '@/lib/db/campaigns'
 import ProspectList from '@/components/prospects/ProspectList'
@@ -146,10 +146,18 @@ export default async function ProspectsPage() {
                   key={campaign.id}
                   className="flex items-center justify-between border border-slate-200 dark:border-slate-700 rounded-lg p-4"
                 >
-                  <div>
-                    <h4 className="font-medium text-slate-900 dark:text-white">
-                      {campaign.name}
-                    </h4>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-medium text-slate-900 dark:text-white">
+                        {campaign.name}
+                      </h4>
+                      {campaign.launch_brief && (
+                        <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 rounded-full">
+                          <Sparkles className="h-3 w-3" />
+                          AI Brief
+                        </span>
+                      )}
+                    </div>
                     {campaign.description && (
                       <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
                         {campaign.description}
@@ -159,12 +167,23 @@ export default async function ProspectsPage() {
                       Created {new Date(campaign.created_at).toLocaleDateString()}
                     </p>
                   </div>
-                  <Link
-                    href={`/prospects?campaign=${campaign.id}`}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
-                  >
-                    View Prospects
-                  </Link>
+                  <div className="flex items-center gap-2">
+                    {campaign.launch_brief && (
+                      <Link
+                        href={`/campaigns/${campaign.id}`}
+                        className="inline-flex items-center gap-2 px-4 py-2 border border-primary-600 text-primary-600 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
+                      >
+                        <Eye className="h-4 w-4" />
+                        View Brief
+                      </Link>
+                    )}
+                    <Link
+                      href={`/prospects?campaign=${campaign.id}`}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                    >
+                      View Prospects
+                    </Link>
+                  </div>
                 </div>
               ))}
             </div>

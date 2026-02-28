@@ -171,7 +171,10 @@ export default function CampaignWizard({ existingCampaign }: CampaignWizardProps
       const data = await response.json()
       const campaignId = existingCampaign?.id || data.campaign.id
       success('Campaign saved successfully!')
-      router.push(`/prospects?campaign=${campaignId}`)
+
+      // Redirect to campaign detail page to show the launch brief
+      router.push(`/campaigns/${campaignId}`)
+      router.refresh()
     } catch (err) {
       console.error('Error saving campaign:', err)
       error('Failed to save campaign. Please try again.')
