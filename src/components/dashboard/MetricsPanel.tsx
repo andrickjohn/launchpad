@@ -1,5 +1,3 @@
-'use client'
-
 import { Award, TrendingUp } from 'lucide-react'
 import type { Template } from '@/lib/types/database'
 
@@ -18,8 +16,8 @@ export default function MetricsPanel({ stats, templates }: MetricsPanelProps) {
       {/* Key Metrics */}
       <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
         <div className="flex items-center gap-2 mb-6">
-          <TrendingUp className="h-5 w-5 text-primary-600" />
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Key Metrics</h3>
+          <TrendingUp className="h-5 w-5 text-primary-600" aria-hidden="true" />
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Key Metrics</h2>
         </div>
 
         <div className="space-y-4">
@@ -34,6 +32,11 @@ export default function MetricsPanel({ stats, templates }: MetricsPanelProps) {
             </div>
             <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
               <div
+                role="progressbar"
+                aria-valuenow={Math.min(parseFloat(stats.responseRate), 100)}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label="Response rate"
                 className="bg-green-600 h-2 rounded-full transition-all"
                 style={{ width: `${Math.min(parseFloat(stats.responseRate), 100)}%` }}
               />
@@ -51,6 +54,11 @@ export default function MetricsPanel({ stats, templates }: MetricsPanelProps) {
             </div>
             <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
               <div
+                role="progressbar"
+                aria-valuenow={Math.min(parseFloat(stats.openRate), 100)}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label="Open rate"
                 className="bg-blue-600 h-2 rounded-full transition-all"
                 style={{ width: `${Math.min(parseFloat(stats.openRate), 100)}%` }}
               />
@@ -68,6 +76,11 @@ export default function MetricsPanel({ stats, templates }: MetricsPanelProps) {
             </div>
             <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
               <div
+                role="progressbar"
+                aria-valuenow={Math.min(parseFloat(stats.conversionRate), 100)}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label="Conversion rate"
                 className="bg-purple-600 h-2 rounded-full transition-all"
                 style={{ width: `${Math.min(parseFloat(stats.conversionRate), 100)}%` }}
               />
@@ -79,10 +92,10 @@ export default function MetricsPanel({ stats, templates }: MetricsPanelProps) {
       {/* Top Templates */}
       <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
         <div className="flex items-center gap-2 mb-6">
-          <Award className="h-5 w-5 text-primary-600" />
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+          <Award className="h-5 w-5 text-primary-600" aria-hidden="true" />
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
             Top Performing Templates
-          </h3>
+          </h2>
         </div>
 
         {templates.length === 0 ? (

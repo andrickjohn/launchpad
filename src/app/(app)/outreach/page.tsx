@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
+import { getAuthUser } from '@/lib/supabase/auth-bypass'
 import OutreachTabs from '@/components/outreach/OutreachTabs'
 
 export const metadata = {
@@ -10,10 +10,8 @@ export const metadata = {
 export default async function OutreachPage() {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    redirect('/login')
-  }
+  const { data: { user } } = await getAuthUser(supabase)
+  if (!user) return null
 
   // Fetch drafts
   const { data: drafts } = await supabase

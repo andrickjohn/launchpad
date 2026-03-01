@@ -82,10 +82,14 @@ export default function TemplateLibrary({ templates, setTemplates }: TemplateLib
           </h3>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label
+                htmlFor="template-name"
+                className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              >
                 Template Name *
               </label>
               <input
+                id="template-name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -95,12 +99,16 @@ export default function TemplateLibrary({ templates, setTemplates }: TemplateLib
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label
+                htmlFor="template-channel"
+                className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              >
                 Channel
               </label>
               <select
+                id="template-channel"
                 value={channel}
-                onChange={(e) => setChannel(e.target.value as any)}
+                onChange={(e) => setChannel(e.target.value as 'email' | 'linkedin' | 'reddit' | 'facebook')}
                 className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500"
               >
                 <option value="email">Email</option>
@@ -112,10 +120,14 @@ export default function TemplateLibrary({ templates, setTemplates }: TemplateLib
 
             {channel === 'email' && (
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                <label
+                  htmlFor="template-subject"
+                  className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+                >
                   Subject
                 </label>
                 <input
+                  id="template-subject"
                   type="text"
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
@@ -126,10 +138,14 @@ export default function TemplateLibrary({ templates, setTemplates }: TemplateLib
             )}
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label
+                htmlFor="template-body"
+                className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              >
                 Body *
               </label>
               <textarea
+                id="template-body"
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
                 placeholder="Use {{name}}, {{company}}, {{email}} for variables"
@@ -178,9 +194,10 @@ export default function TemplateLibrary({ templates, setTemplates }: TemplateLib
               </div>
               <button
                 onClick={() => handleDelete(template.id)}
+                aria-label={`Delete template: ${template.name}`}
                 className="text-red-600 hover:text-red-700 p-2"
               >
-                <Trash2 className="h-5 w-5" />
+                <Trash2 className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
 

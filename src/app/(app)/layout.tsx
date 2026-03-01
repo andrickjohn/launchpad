@@ -1,11 +1,12 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getAuthUser } from '@/lib/supabase/auth-bypass'
-import Sidebar from '@/components/Sidebar'
+import AppShell from '@/components/AppShell'
 
 /**
- * Protected layout for authenticated app routes
- * Includes sidebar navigation
+ * Protected server-component layout for authenticated app routes.
+ * Performs the auth check and delegates rendering to the AppShell
+ * client component which manages the mobile sidebar toggle state.
  */
 export default async function AppLayout({
   children,
@@ -22,12 +23,5 @@ export default async function AppLayout({
     redirect('/login')
   }
 
-  return (
-    <div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-slate-900">
-      <Sidebar />
-      <main className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-7xl p-6">{children}</div>
-      </main>
-    </div>
-  )
+  return <AppShell>{children}</AppShell>
 }

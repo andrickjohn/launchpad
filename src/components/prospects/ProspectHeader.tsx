@@ -53,7 +53,7 @@ export default function ProspectHeader({ prospect }: ProspectHeaderProps) {
           href="/prospects"
           className="flex items-center text-primary-600 hover:text-primary-700 dark:text-primary-400"
         >
-          <ArrowLeft className="w-5 h-5 mr-2" />
+          <ArrowLeft className="w-5 h-5 mr-2" aria-hidden="true" />
           Back to Prospects
         </Link>
 
@@ -62,7 +62,7 @@ export default function ProspectHeader({ prospect }: ProspectHeaderProps) {
             href={`/prospects/${prospect.id}/edit`}
             className="inline-flex items-center px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
           >
-            <Edit className="w-4 h-4 mr-2" />
+            <Edit className="w-4 h-4 mr-2" aria-hidden="true" />
             Edit
           </Link>
           <button
@@ -70,7 +70,7 @@ export default function ProspectHeader({ prospect }: ProspectHeaderProps) {
             disabled={isDeleting}
             className="inline-flex items-center px-3 py-2 border border-red-300 dark:border-red-600 rounded-md text-sm font-medium text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900 disabled:opacity-50"
           >
-            <Trash2 className="w-4 h-4 mr-2" />
+            <Trash2 className="w-4 h-4 mr-2" aria-hidden="true" />
             {isDeleting ? 'Deleting...' : 'Delete'}
           </button>
         </div>
@@ -132,7 +132,7 @@ export default function ProspectHeader({ prospect }: ProspectHeaderProps) {
 
             {prospect.linkedin_url && (
               <div className="flex items-center text-slate-700 dark:text-slate-300">
-                <Linkedin className="w-5 h-5 mr-3 text-slate-400" />
+                <Linkedin className="w-5 h-5 mr-3 text-slate-400" aria-hidden="true" />
                 <a
                   href={prospect.linkedin_url}
                   target="_blank"
@@ -140,13 +140,14 @@ export default function ProspectHeader({ prospect }: ProspectHeaderProps) {
                   className="hover:text-primary-600 dark:hover:text-primary-400"
                 >
                   LinkedIn Profile
+                  <span className="sr-only">(opens in new tab)</span>
                 </a>
               </div>
             )}
 
             {prospect.website && (
               <div className="flex items-center text-slate-700 dark:text-slate-300">
-                <Globe className="w-5 h-5 mr-3 text-slate-400" />
+                <Globe className="w-5 h-5 mr-3 text-slate-400" aria-hidden="true" />
                 <a
                   href={prospect.website}
                   target="_blank"
@@ -154,6 +155,7 @@ export default function ProspectHeader({ prospect }: ProspectHeaderProps) {
                   className="hover:text-primary-600 dark:hover:text-primary-400"
                 >
                   {prospect.website}
+                  <span className="sr-only">(opens in new tab)</span>
                 </a>
               </div>
             )}

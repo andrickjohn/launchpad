@@ -55,47 +55,51 @@ export default function DraftQueue({ drafts, setDrafts }: DraftQueueProps) {
           </p>
         </div>
       ) : (
-        drafts.map((draft) => (
-          <div
-            key={draft.id}
-            className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6"
-          >
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <div className="text-sm text-slate-500 dark:text-slate-400 mb-1">
-                  {draft.channel.toUpperCase()} · Created{' '}
-                  {new Date(draft.created_at).toLocaleDateString()}
+        <ul className="space-y-4" aria-label="Drafts awaiting approval">
+          {drafts.map((draft) => (
+            <li
+              key={draft.id}
+              className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <div className="text-sm text-slate-500 dark:text-slate-400 mb-1">
+                    {draft.channel.toUpperCase()} · Created{' '}
+                    {new Date(draft.created_at).toLocaleDateString()}
+                  </div>
+                  {draft.subject && (
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                      {draft.subject}
+                    </h3>
+                  )}
                 </div>
-                {draft.subject && (
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-                    {draft.subject}
-                  </h3>
-                )}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleApprove(draft.id)}
+                    aria-label={`Approve and send: ${draft.subject || 'untitled draft'}`}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    <Check className="h-4 w-4" aria-hidden="true" />
+                    Approve & Send
+                  </button>
+                  <button
+                    onClick={() => handleDelete(draft.id)}
+                    aria-label={`Delete draft: ${draft.subject || 'untitled draft'}`}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors"
+                  >
+                    <X className="h-4 w-4" aria-hidden="true" />
+                    Delete
+                  </button>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => handleApprove(draft.id)}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors"
-                >
-                  <Check className="h-4 w-4" />
-                  Approve & Send
-                </button>
-                <button
-                  onClick={() => handleDelete(draft.id)}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors"
-                >
-                  <X className="h-4 w-4" />
-                  Delete
-                </button>
+              <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-4">
+                <pre className="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300 font-sans">
+                  {draft.body}
+                </pre>
               </div>
-            </div>
-            <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-4">
-              <pre className="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300 font-sans">
-                {draft.body}
-              </pre>
-            </div>
-          </div>
-        ))
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   )

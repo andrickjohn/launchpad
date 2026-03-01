@@ -18,6 +18,36 @@ export type ActivityType =
   | 'response_received'
   | 'campaign_created'
   | 'template_created'
+  | 'campaign_activated'
+
+export type ActionStatus = 'pending' | 'approved' | 'rejected' | 'completed' | 'skipped'
+
+export type ActionChannel = 'email' | 'linkedin' | 'reddit' | 'facebook' | 'scrape' | 'task'
+
+export type ActionType = 'email_draft' | 'social_post' | 'scrape_config' | 'manual_task'
+
+export interface EmailActionContent {
+  subject: string
+  body: string
+  target_description?: string
+}
+
+export interface SocialActionContent {
+  platform: string
+  message: string
+  context?: string
+}
+
+export interface ScrapeActionContent {
+  actor_id: string
+  queries: string[]
+  description: string
+}
+
+export interface TaskActionContent {
+  description: string
+  estimated_time?: string
+}
 
 export interface Profile {
   id: string
@@ -39,6 +69,7 @@ export interface Campaign {
   geography: string | null
   launch_brief: Record<string, unknown> | null
   is_active: boolean
+  activated_at: string | null
   created_at: string
   updated_at: string
 }
@@ -158,4 +189,28 @@ export interface ProspectWithCampaign extends Prospect {
 export interface ProspectWithTimeline extends Prospect {
   outreach: Outreach[]
   campaign?: Campaign
+}
+
+export interface CampaignAction {
+  id: string
+  campaign_id?: string
+  user_id?: string
+  day: number
+  channel: ActionChannel
+  action_type: ActionType
+  title: string
+  content: Record<string, unknown>
+  status: ActionStatus
+  sort_order: number
+  created_at: string
+  updated_at: string
+}
+
+export interface CampaignActionStats {
+  total: number
+  pending: number
+  approved: number
+  rejected: number
+  completed: number
+  skipped: number
 }

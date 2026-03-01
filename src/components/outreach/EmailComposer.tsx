@@ -22,6 +22,7 @@ export default function EmailComposer({ prospects, templates }: EmailComposerPro
 
   const handleAIDraft = async () => {
     if (!prospectId) {
+      // TODO: Replace with toast notification (e.g. toast.error('Please select a prospect first'))
       alert('Please select a prospect first')
       return
     }
@@ -41,6 +42,7 @@ export default function EmailComposer({ prospects, templates }: EmailComposerPro
       setBody(data.body)
     } catch (error) {
       console.error('Error drafting email:', error)
+      // TODO: Replace with toast notification (e.g. toast.error('Failed to draft email. Please try again.'))
       alert('Failed to draft email. Please try again.')
     } finally {
       setIsDrafting(false)
@@ -49,6 +51,7 @@ export default function EmailComposer({ prospects, templates }: EmailComposerPro
 
   const handleSend = async () => {
     if (!prospectId || !subject || !body) {
+      // TODO: Replace with toast notification (e.g. toast.error('Please fill in all required fields'))
       alert('Please fill in all required fields')
       return
     }
@@ -68,6 +71,7 @@ export default function EmailComposer({ prospects, templates }: EmailComposerPro
 
       if (!response.ok) throw new Error('Failed to send email')
 
+      // TODO: Replace with toast notification (e.g. toast.success(...))
       alert(scheduledAt ? 'Email scheduled successfully!' : 'Email sent successfully!')
       setProspectId('')
       setSubject('')
@@ -75,6 +79,7 @@ export default function EmailComposer({ prospects, templates }: EmailComposerPro
       setScheduledAt('')
     } catch (error) {
       console.error('Error sending email:', error)
+      // TODO: Replace with toast notification (e.g. toast.error('Failed to send email. Please try again.'))
       alert('Failed to send email. Please try again.')
     } finally {
       setIsSending(false)
@@ -83,6 +88,7 @@ export default function EmailComposer({ prospects, templates }: EmailComposerPro
 
   const handleSaveDraft = async () => {
     if (!prospectId || !body) {
+      // TODO: Replace with toast notification (e.g. toast.error('Please select a prospect and write a message'))
       alert('Please select a prospect and write a message')
       return
     }
@@ -103,9 +109,11 @@ export default function EmailComposer({ prospects, templates }: EmailComposerPro
 
       if (!response.ok) throw new Error('Failed to save draft')
 
+      // TODO: Replace with toast notification (e.g. toast.success('Draft saved successfully!'))
       alert('Draft saved successfully!')
     } catch (error) {
       console.error('Error saving draft:', error)
+      // TODO: Replace with toast notification (e.g. toast.error('Failed to save draft. Please try again.'))
       alert('Failed to save draft. Please try again.')
     } finally {
       setIsSavingDraft(false)
@@ -144,10 +152,14 @@ export default function EmailComposer({ prospects, templates }: EmailComposerPro
           <div className="space-y-4">
             {/* Prospect Selection */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label
+                htmlFor="composer-to"
+                className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              >
                 To *
               </label>
               <select
+                id="composer-to"
                 value={prospectId}
                 onChange={(e) => setProspectId(e.target.value)}
                 className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500"
@@ -163,10 +175,14 @@ export default function EmailComposer({ prospects, templates }: EmailComposerPro
 
             {/* Subject */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label
+                htmlFor="composer-subject"
+                className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              >
                 Subject *
               </label>
               <input
+                id="composer-subject"
                 type="text"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
@@ -178,7 +194,10 @@ export default function EmailComposer({ prospects, templates }: EmailComposerPro
             {/* Body */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                <label
+                  htmlFor="composer-message"
+                  className="block text-sm font-medium text-slate-700 dark:text-slate-300"
+                >
                   Message *
                 </label>
                 <button
@@ -187,14 +206,15 @@ export default function EmailComposer({ prospects, templates }: EmailComposerPro
                   className="inline-flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700 disabled:opacity-50"
                 >
                   {isDrafting ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                   ) : (
-                    <Sparkles className="h-4 w-4" />
+                    <Sparkles className="h-4 w-4" aria-hidden="true" />
                   )}
                   AI Draft
                 </button>
               </div>
               <textarea
+                id="composer-message"
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
                 placeholder="Write your email message..."
@@ -205,10 +225,14 @@ export default function EmailComposer({ prospects, templates }: EmailComposerPro
 
             {/* Schedule (Optional) */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label
+                htmlFor="composer-schedule"
+                className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              >
                 Schedule For (Optional)
               </label>
               <input
+                id="composer-schedule"
                 type="datetime-local"
                 value={scheduledAt}
                 onChange={(e) => setScheduledAt(e.target.value)}
@@ -225,12 +249,16 @@ export default function EmailComposer({ prospects, templates }: EmailComposerPro
               >
                 {isSending ? (
                   <>
-                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
                     {scheduledAt ? 'Scheduling...' : 'Sending...'}
                   </>
                 ) : (
                   <>
-                    {scheduledAt ? <Calendar className="h-5 w-5" /> : <Send className="h-5 w-5" />}
+                    {scheduledAt ? (
+                      <Calendar className="h-5 w-5" aria-hidden="true" />
+                    ) : (
+                      <Send className="h-5 w-5" aria-hidden="true" />
+                    )}
                     {scheduledAt ? 'Schedule Email' : 'Send Now'}
                   </>
                 )}
@@ -243,12 +271,12 @@ export default function EmailComposer({ prospects, templates }: EmailComposerPro
               >
                 {isSavingDraft ? (
                   <>
-                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
                     Saving...
                   </>
                 ) : (
                   <>
-                    <Save className="h-5 w-5" />
+                    <Save className="h-5 w-5" aria-hidden="true" />
                     Save Draft
                   </>
                 )}

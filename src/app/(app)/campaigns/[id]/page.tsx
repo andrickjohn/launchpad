@@ -1,7 +1,8 @@
 import { notFound } from 'next/navigation'
 import { getCampaign } from '@/lib/db/campaigns'
-import { CheckCircle, Sparkles, ArrowLeft, Edit } from 'lucide-react'
+import { CheckCircle, Sparkles, ArrowLeft, Edit, Rocket, ClipboardCheck } from 'lucide-react'
 import Link from 'next/link'
+import ActivateCampaignButton from '@/components/campaigns/ActivateCampaignButton'
 
 export const metadata = {
   title: 'Campaign Details | LaunchPad',
@@ -30,6 +31,11 @@ interface LaunchBrief {
     tasks: string[]
   }>
   key_insights: string[]
+  generated_actions?: Array<{
+    id: string
+    status: string
+  }>
+  activated_at?: string
 }
 
 export default async function CampaignDetailPage({ params }: PageProps) {
@@ -41,6 +47,13 @@ export default async function CampaignDetailPage({ params }: PageProps) {
   }
 
   const launchBrief = campaign.launch_brief as unknown as LaunchBrief | null
+  const isActivated = !!(launchBrief?.activated_at)
+  const actions = launchBrief?.generated_actions || []
+  const actionStats = isActivated ? {
+    total: actions.length,
+    approved: actions.filter(a => a.status === 'approved').length,
+    completed: actions.filter(a => a.status === 'completed').length,
+  } : null
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -91,43 +104,25 @@ export default async function CampaignDetailPage({ params }: PageProps) {
         <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
           Campaign Details
         </h2>
-        <dl className="grid grid-cols-2 gap-4">
+        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <dt className="text-sm font-medium text-slate-500 dark:text-slate-400">
-              Product
-            </dt>
-            <dd className="mt-1 text-sm text-slate-900 dark:text-white">
-              {campaign.product_description || 'Not specified'}
-            </dd>
+            <dt className="text-sm font-medium text-slate-500 dark:text-slate-400">Product</dt>
+            <dd className="mt-1 text-sm text-slate-900 dark:text-white">{campaign.product_description || 'Not specified'}</dd>
           </div>
           <div>
-            <dt className="text-sm font-medium text-slate-500 dark:text-slate-400">
-              Target Buyer
-            </dt>
-            <dd className="mt-1 text-sm text-slate-900 dark:text-white">
-              {campaign.target_buyer || 'Not specified'}
-            </dd>
+            <dt className="text-sm font-medium text-slate-500 dark:text-slate-400">Target Buyer</dt>
+            <dd className="mt-1 text-sm text-slate-900 dark:text-white">{campaign.target_buyer || 'Not specified'}</dd>
           </div>
           <div>
-            <dt className="text-sm font-medium text-slate-500 dark:text-slate-400">
-              Price Point
-            </dt>
-            <dd className="mt-1 text-sm text-slate-900 dark:text-white">
-              {campaign.price_point || 'Not specified'}
-            </dd>
+            <dt className="text-sm font-medium text-slate-500 dark:text-slate-400">Price Point</dt>
+            <dd className="mt-1 text-sm text-slate-900 dark:text-white">{campaign.price_point || 'Not specified'}</dd>
           </div>
           <div>
-            <dt className="text-sm font-medium text-slate-500 dark:text-slate-400">
-              Geography
-            </dt>
-            <dd className="mt-1 text-sm text-slate-900 dark:text-white">
-              {campaign.geography || 'Not specified'}
-            </dd>
+            <dt className="text-sm font-medium text-slate-500 dark:text-slate-400">Geography</dt>
+            <dd className="mt-1 text-sm text-slate-900 dark:text-white">{campaign.geography || 'Not specified'}</dd>
           </div>
           <div>
-            <dt className="text-sm font-medium text-slate-500 dark:text-slate-400">
-              Status
-            </dt>
+            <dt className="text-sm font-medium text-slate-500 dark:text-slate-400">Status</dt>
             <dd className="mt-1">
               <span className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full ${
                 campaign.is_active
@@ -139,12 +134,8 @@ export default async function CampaignDetailPage({ params }: PageProps) {
             </dd>
           </div>
           <div>
-            <dt className="text-sm font-medium text-slate-500 dark:text-slate-400">
-              Created
-            </dt>
-            <dd className="mt-1 text-sm text-slate-900 dark:text-white">
-              {new Date(campaign.created_at).toLocaleDateString()}
-            </dd>
+            <dt className="text-sm font-medium text-slate-500 dark:text-slate-400">Created</dt>
+            <dd className="mt-1 text-sm text-slate-900 dark:text-white">{new Date(campaign.created_at).toLocaleDateString()}</dd>
           </div>
         </dl>
       </div>
@@ -152,11 +143,11 @@ export default async function CampaignDetailPage({ params }: PageProps) {
       {/* Launch Brief */}
       {launchBrief ? (
         <div className="space-y-6">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Launch Brief</h2>
+
           {/* Key Insights */}
           <div className="bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-primary-900 dark:text-primary-100 mb-4">
-              Key Insights
-            </h3>
+            <h3 className="text-lg font-semibold text-primary-900 dark:text-primary-100 mb-4">Key Insights</h3>
             <ul className="space-y-2">
               {launchBrief.key_insights.map((insight, i) => (
                 <li key={i} className="flex items-start gap-2 text-primary-800 dark:text-primary-200">
@@ -169,77 +160,43 @@ export default async function CampaignDetailPage({ params }: PageProps) {
 
           {/* Recommended Channels */}
           <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
-              Recommended Channels (Ranked)
-            </h3>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Recommended Channels (Ranked)</h3>
             <div className="space-y-4">
               {launchBrief.channels.map((channel) => (
-                <div
-                  key={channel.name}
-                  className="border border-slate-200 dark:border-slate-700 rounded-lg p-4"
-                >
+                <div key={channel.name} className="border border-slate-200 dark:border-slate-700 rounded-lg p-4">
                   <div className="flex items-start justify-between mb-2">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary-600 text-white font-bold text-sm">
-                          {channel.rank}
-                        </span>
-                        <h4 className="font-semibold text-slate-900 dark:text-white">
-                          {channel.name}
-                        </h4>
+                        <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary-600 text-white font-bold text-sm">{channel.rank}</span>
+                        <h4 className="font-semibold text-slate-900 dark:text-white">{channel.name}</h4>
                       </div>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
-                        {channel.rationale}
-                      </p>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">{channel.rationale}</p>
                     </div>
                     <div className="text-right text-sm">
-                      <div className="text-slate-600 dark:text-slate-400">
-                        Est. Volume: <span className="font-medium">{channel.estimated_volume}</span>
-                      </div>
-                      <div className="text-slate-600 dark:text-slate-400">
-                        Response: <span className="font-medium">{channel.expected_response_rate}</span>
-                      </div>
+                      <div className="text-slate-600 dark:text-slate-400">Est. Volume: <span className="font-medium">{channel.estimated_volume}</span></div>
+                      <div className="text-slate-600 dark:text-slate-400">Response: <span className="font-medium">{channel.expected_response_rate}</span></div>
                     </div>
                   </div>
-
                   <div className="mt-3">
-                    <h5 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                      Methods:
-                    </h5>
+                    <h5 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Methods:</h5>
                     <div className="flex flex-wrap gap-2">
                       {channel.methods.map((method, i) => (
-                        <span
-                          key={i}
-                          className="text-xs bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-2 py-1 rounded"
-                        >
-                          {method}
-                        </span>
+                        <span key={i} className="text-xs bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-2 py-1 rounded">{method}</span>
                       ))}
                     </div>
                   </div>
-
                   {channel.sample_queries.length > 0 && (
                     <div className="mt-3">
-                      <h5 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                        Sample Queries:
-                      </h5>
+                      <h5 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Sample Queries:</h5>
                       <div className="space-y-1">
                         {channel.sample_queries.map((query, i) => (
-                          <div
-                            key={i}
-                            className="text-xs bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 px-3 py-2 rounded font-mono"
-                          >
-                            {query}
-                          </div>
+                          <div key={i} className="text-xs bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 px-3 py-2 rounded font-mono">{query}</div>
                         ))}
                       </div>
                     </div>
                   )}
-
                   {channel.apify_actor && (
-                    <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                      Apify Actor: {channel.apify_actor}
-                    </div>
+                    <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">Apify Actor: {channel.apify_actor}</div>
                   )}
                 </div>
               ))}
@@ -248,9 +205,7 @@ export default async function CampaignDetailPage({ params }: PageProps) {
 
           {/* First Week Plan */}
           <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
-              First Week Action Plan
-            </h3>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">First Week Action Plan</h3>
             <div className="space-y-4">
               {launchBrief.first_week_plan.map((day) => (
                 <div key={day.day} className="border-l-4 border-primary-600 pl-4">
@@ -258,7 +213,7 @@ export default async function CampaignDetailPage({ params }: PageProps) {
                   <ul className="space-y-1">
                     {day.tasks.map((task, i) => (
                       <li key={i} className="text-sm text-slate-600 dark:text-slate-400 flex items-start gap-2">
-                        <span className="text-primary-600 mt-1">•</span>
+                        <span className="text-primary-600 mt-1">&bull;</span>
                         <span>{task}</span>
                       </li>
                     ))}
@@ -267,16 +222,49 @@ export default async function CampaignDetailPage({ params }: PageProps) {
               ))}
             </div>
           </div>
+
+          {/* Activate or Navigate */}
+          {isActivated && actionStats ? (
+            <div className="bg-white dark:bg-slate-800 rounded-lg border border-green-200 dark:border-green-800 p-6">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Campaign Activated</h3>
+                  </div>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                    {actionStats.total} actions &middot; {actionStats.approved} approved &middot; {actionStats.completed} completed
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Link
+                    href={`/campaigns/${id}/review`}
+                    className="inline-flex items-center gap-2 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-sm font-medium"
+                  >
+                    <ClipboardCheck className="h-4 w-4" aria-hidden="true" />
+                    Review Actions
+                  </Link>
+                  <Link
+                    href={`/campaigns/${id}/mission-control`}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
+                  >
+                    <Rocket className="h-4 w-4" aria-hidden="true" />
+                    Mission Control
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <ActivateCampaignButton campaignId={id} />
+          )}
         </div>
       ) : (
         <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-12">
           <div className="text-center">
             <Sparkles className="h-16 w-16 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
-              No Launch Brief Yet
-            </h3>
+            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">No Launch Brief Yet</h3>
             <p className="text-slate-600 dark:text-slate-400 mb-6 max-w-md mx-auto">
-              This campaign doesn't have a launch brief yet. Generate one to get AI-powered
+              This campaign doesn&apos;t have a launch brief yet. Generate one to get AI-powered
               channel recommendations and a first-week action plan.
             </p>
             {!campaign.is_active && (

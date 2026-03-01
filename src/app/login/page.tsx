@@ -63,7 +63,7 @@ export default function LoginPage() {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-slate-400" />
+                  <Mail className="h-5 w-5 text-slate-400" aria-hidden="true" />
                 </div>
                 <input
                   id="email"
@@ -80,6 +80,8 @@ export default function LoginPage() {
 
             {message && (
               <div
+                role="alert"
+                aria-live="polite"
                 className={`p-4 rounded-md ${
                   message.type === 'success'
                     ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300'

@@ -206,9 +206,9 @@ export default function CSVImport({ campaigns }: CSVImportProps) {
         </h2>
 
         {!file ? (
-          <div
-            onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-12 text-center cursor-pointer hover:border-primary-500 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+          <label
+            htmlFor="csv-file-input"
+            className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-12 text-center cursor-pointer hover:border-primary-500 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors block"
           >
             <Upload className="h-12 w-12 text-slate-400 mx-auto mb-4" />
             <p className="text-slate-700 dark:text-slate-300 font-medium mb-2">
@@ -217,12 +217,14 @@ export default function CSVImport({ campaigns }: CSVImportProps) {
             <p className="text-sm text-slate-500 dark:text-slate-400">CSV files only</p>
             <input
               ref={fileInputRef}
+              id="csv-file-input"
               type="file"
               accept=".csv"
               onChange={handleFileChange}
+              aria-label="Choose CSV file to import"
               className="hidden"
             />
-          </div>
+          </label>
         ) : (
           <div className="space-y-4">
             {/* File Info */}
@@ -242,6 +244,7 @@ export default function CSVImport({ campaigns }: CSVImportProps) {
                   setParsed([])
                   setImportResult(null)
                 }}
+                aria-label="Clear selected file"
                 className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
               >
                 <X className="h-5 w-5" />
@@ -281,13 +284,13 @@ export default function CSVImport({ campaigns }: CSVImportProps) {
                   <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
                     <thead className="bg-slate-50 dark:bg-slate-900">
                       <tr>
-                        <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400">
+                        <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400">
                           Email
                         </th>
-                        <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400">
+                        <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400">
                           Name
                         </th>
-                        <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400">
+                        <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400">
                           Company
                         </th>
                       </tr>

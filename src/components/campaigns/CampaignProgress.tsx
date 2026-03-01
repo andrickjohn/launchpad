@@ -119,6 +119,11 @@ export default function CampaignProgress({
         </div>
         <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
           <div
+            role="progressbar"
+            aria-valuenow={progressPercentage}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="Campaign progress"
             className="bg-gradient-to-r from-blue-600 via-purple-600 to-green-600 h-2 rounded-full transition-all duration-500 ease-out"
             style={{ width: `${progressPercentage}%` }}
           />
@@ -139,9 +144,9 @@ export default function CampaignProgress({
                 {/* Icon */}
                 <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-all ${colorClasses}`}>
                   {status === 'complete' ? (
-                    <CheckCircle2 className="h-6 w-6" />
+                    <CheckCircle2 className="h-6 w-6" aria-hidden="true" />
                   ) : (
-                    <Icon className="h-6 w-6" />
+                    <Icon className="h-6 w-6" aria-hidden="true" />
                   )}
                 </div>
 
@@ -166,13 +171,15 @@ export default function CampaignProgress({
                     {/* Help Button */}
                     <button
                       onClick={() => setExpandedStep(isExpanded ? null : step.id)}
+                      aria-expanded={isExpanded}
+                      aria-label={`${isExpanded ? 'Hide' : 'Show'} explanation for ${step.title}`}
                       className={`flex-shrink-0 p-1 rounded-lg transition-all ${
                         isExpanded
                           ? 'bg-primary-100 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400'
                           : 'hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400'
                       }`}
                     >
-                      <HelpCircle className="h-5 w-5" />
+                      <HelpCircle className="h-5 w-5" aria-hidden="true" />
                     </button>
                   </div>
 
@@ -188,13 +195,13 @@ export default function CampaignProgress({
                   {/* Status Badge */}
                   {status === 'complete' && (
                     <div className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-green-600 dark:text-green-400">
-                      <CheckCircle2 className="h-3 w-3" />
+                      <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
                       Complete
                     </div>
                   )}
                   {status === 'current' && (
                     <div className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary-600 dark:text-primary-400">
-                      <Circle className="h-3 w-3 animate-pulse" />
+                      <Circle className="h-3 w-3 animate-pulse" aria-hidden="true" />
                       In Progress
                     </div>
                   )}
@@ -208,7 +215,7 @@ export default function CampaignProgress({
                     getStepStatus(steps[index + 1].id) !== 'upcoming'
                       ? 'text-slate-400'
                       : 'text-slate-300 dark:text-slate-700'
-                  }`} />
+                  }`} aria-hidden="true" />
                 </div>
               )}
             </div>

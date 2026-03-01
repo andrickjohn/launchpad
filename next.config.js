@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  poweredByHeader: false,
   async headers() {
     return [
       {
@@ -28,6 +29,15 @@ const nextConfig = {
               "font-src 'self' data:",
               "connect-src 'self' https://*.supabase.co http://127.0.0.1:* http://localhost:*",
             ].join('; '),
+          },
+        ],
+      },
+      {
+        source: '/_next/static/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
           },
         ],
       },

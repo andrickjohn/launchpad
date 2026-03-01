@@ -40,13 +40,17 @@ export default function OutreachTabs({
     <div className="space-y-6">
       {/* Tabs */}
       <div className="border-b border-slate-200 dark:border-slate-700">
-        <nav className="flex space-x-8" aria-label="Tabs">
+        <div role="tablist" aria-label="Outreach sections" className="flex space-x-8">
           {tabs.map((tab) => {
             const Icon = tab.icon
             const isActive = activeTab === tab.id
             return (
               <button
                 key={tab.id}
+                id={`tab-${tab.id}`}
+                role="tab"
+                aria-selected={activeTab === tab.id}
+                aria-controls={`panel-${tab.id}`}
                 onClick={() => setActiveTab(tab.id)}
                 className={`
                   flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors
@@ -57,34 +61,64 @@ export default function OutreachTabs({
                   }
                 `}
               >
-                <Icon className="h-5 w-5" />
+                <Icon className="h-5 w-5" aria-hidden="true" />
                 {tab.label}
                 {tab.badge !== undefined && tab.badge > 0 && (
-                  <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-primary-600 rounded-full">
+                  <span
+                    className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-primary-600 rounded-full"
+                    aria-label={`${tab.badge} ${tab.id === 'drafts' ? 'drafts pending' : 'templates'}`}
+                  >
                     {tab.badge}
                   </span>
                 )}
               </button>
             )
           })}
-        </nav>
+        </div>
       </div>
 
       {/* Tab Content */}
       <div className="mt-6">
-        {activeTab === 'composer' && (
+        <div
+          role="tabpanel"
+          id="panel-composer"
+          aria-labelledby="tab-composer"
+          hidden={activeTab !== 'composer'}
+        >
           <EmailComposer prospects={prospects} templates={templates} />
-        )}
-        {activeTab === 'drafts' && (
+        </div>
+        <div
+          role="tabpanel"
+          id="panel-drafts"
+          aria-labelledby="tab-drafts"
+          hidden={activeTab !== 'drafts'}
+        >
           <DraftQueue drafts={drafts} setDrafts={setDrafts} />
-        )}
-        {activeTab === 'sequences' && (
+        </div>
+        <div
+          role="tabpanel"
+          id="panel-sequences"
+          aria-labelledby="tab-sequences"
+          hidden={activeTab !== 'sequences'}
+        >
           <SequenceBuilder prospects={prospects} templates={templates} />
-        )}
-        {activeTab === 'social' && <SocialDrafts prospects={prospects} />}
-        {activeTab === 'templates' && (
+        </div>
+        <div
+          role="tabpanel"
+          id="panel-social"
+          aria-labelledby="tab-social"
+          hidden={activeTab !== 'social'}
+        >
+          <SocialDrafts prospects={prospects} />
+        </div>
+        <div
+          role="tabpanel"
+          id="panel-templates"
+          aria-labelledby="tab-templates"
+          hidden={activeTab !== 'templates'}
+        >
           <TemplateLibrary templates={templates} setTemplates={setTemplates} />
-        )}
+        </div>
       </div>
     </div>
   )

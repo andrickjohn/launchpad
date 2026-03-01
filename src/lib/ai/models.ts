@@ -66,11 +66,32 @@ export const CLAUDE_MODELS: Record<ModelTier, ModelInfo> = {
  */
 export const MODEL_ASSIGNMENTS = {
   launchBrief: 'sonnet' as ModelTier, // Complex GTM strategy
+  campaignActivation: 'sonnet' as ModelTier, // Complex content generation
   prospectScoring: 'haiku' as ModelTier, // Simple scoring
   prospectSimilarity: 'haiku' as ModelTier, // Pattern matching
   emailDrafting: 'haiku' as ModelTier, // Simple drafting
   socialDrafting: 'haiku' as ModelTier, // Simple drafting
 } as const
+
+export type FeatureKey = keyof typeof MODEL_ASSIGNMENTS
+
+export const FEATURE_LABELS: Record<FeatureKey, string> = {
+  launchBrief: 'Launch Brief Generation',
+  campaignActivation: 'Campaign Activation',
+  prospectScoring: 'Prospect Scoring',
+  prospectSimilarity: 'Prospect Similarity',
+  emailDrafting: 'Email Drafting',
+  socialDrafting: 'Social Drafting',
+}
+
+export const FEATURE_COST_ESTIMATES: Record<FeatureKey, string> = {
+  launchBrief: '~2K input + ~4K output',
+  campaignActivation: '~3K input + ~6K output',
+  prospectScoring: '~500 input + ~200 output per prospect',
+  prospectSimilarity: '~500 input + ~300 output',
+  emailDrafting: '~300 input + ~200 output per email',
+  socialDrafting: '~300 input + ~200 output per post',
+}
 
 /**
  * Get the model ID for a specific tier
@@ -99,4 +120,45 @@ export function getAllModels(): ModelInfo[] {
 export function getModelTierFromId(modelId: string): ModelTier | null {
   const entry = Object.entries(CLAUDE_MODELS).find(([_, info]) => info.id === modelId)
   return entry ? (entry[0] as ModelTier) : null
+}
+
+/**
+ * Get model tier for a feature, checking user override first.
+ * Server-side: always returns default (overrides are client-side only).
+ * Client-side: checks localStorage for user preference.
+ */
+export function getModelForFeature(feature: FeatureKey): ModelTier {
+  if (typeof window !== 'undefined') {
+    try {
+      const overrides = JSON.parse(localStorage.getItem('launchpad_model_overrides') || '{}')
+      if (overrides[feature] && CLAUDE_MODELS[overrides[feature] as ModelTier]) {
+        return overrides[feature] as ModelTier
+      }
+    } catch {
+      // Invalid localStorage data — fall through to default
+    }
+  }
+  return MODEL_ASSIGNMENTS[feature]
+}
+
+/**
+ * Estimate cost for a feature call based on model tier and typical token usage
+ */
+export function estimateFeatureCost(feature: FeatureKey, tier?: ModelTier): string {
+  const modelTier = tier || MODEL_ASSIGNMENTS[feature]
+  const model = CLAUDE_MODELS[modelTier]
+  // Rough estimates based on typical usage patterns
+  const estimates: Record<FeatureKey, { input: number; output: number }> = {
+    launchBrief: { input: 2000, output: 4000 },
+    campaignActivation: { input: 3000, output: 6000 },
+    prospectScoring: { input: 500, output: 200 },
+    prospectSimilarity: { input: 500, output: 300 },
+    emailDrafting: { input: 300, output: 200 },
+    socialDrafting: { input: 300, output: 200 },
+  }
+  const usage = estimates[feature]
+  const cost = (usage.input / 1_000_000) * model.costPer1MTokens.input +
+    (usage.output / 1_000_000) * model.costPer1MTokens.output
+  if (cost < 0.01) return '<$0.01'
+  return `~$${cost.toFixed(2)}`
 }

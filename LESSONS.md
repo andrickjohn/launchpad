@@ -232,4 +232,24 @@ Connecting to 'http://127.0.0.1:54321/auth/v1/otp' violates the following Conten
 
 ---
 
+---
+
+## Lesson: Build Passing Does Not Mean Feature Working
+**Date:** 2026-02-28
+**Component:** Campaign brief generation and save flow
+
+**Failure:** Told user the brief flow was fixed after `tsc` and `npm run build` passed. User clicked "Generate Launch Brief", spent real money on Claude API tokens, but saw nothing — brief generated but auto-save to database failed silently.
+
+**Root Cause:** The dev auth bypass returned a fake UUID (`00000000...`) as user_id. The `campaigns` table has a foreign key constraint to `auth.users`. The fake UUID doesn't exist there, so every INSERT/UPDATE failed. `tsc` and build only check syntax, not runtime DB constraints.
+
+**Fix:** Changed `auth-bypass.ts` to look up or create a real user in `auth.users` via the admin API instead of using a fake UUID.
+
+**Prevention:**
+- **MANDATORY**: After any API-related fix, test the actual endpoint with `curl` before telling the user it's fixed
+- **MANDATORY**: Check server logs for the actual error, not just HTTP status codes
+- Build passing !== feature working. Always test the runtime behavior.
+- Foreign key constraints are enforced even with service role key (only RLS is bypassed)
+
+---
+
 **IMPORTANT:** Before building next component, review all lessons above and avoid repeating these mistakes.

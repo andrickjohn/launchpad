@@ -86,16 +86,51 @@ export default function CampaignWizard({ existingCampaign }: CampaignWizardProps
       })
 
       if (!response.ok) {
-        throw new Error('Failed to generate brief')
+        const errData = await response.json().catch(() => ({}))
+        throw new Error(errData.error || 'Failed to generate brief')
       }
 
       const data = await response.json()
       setLaunchBrief(data.brief)
       setModelInfo(data.model)
+
+      // Auto-save the campaign with the brief immediately so it's never lost
+      const saveUrl = existingCampaign
+        ? `/api/campaigns/${existingCampaign.id}`
+        : '/api/campaigns'
+
+      const saveResponse = await fetch(saveUrl, {
+        method: existingCampaign ? 'PATCH' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: campaignName || 'Untitled Campaign',
+          description,
+          product_description: productDescription,
+          target_buyer: targetBuyer,
+          price_point: pricePoint,
+          geography,
+          launch_brief: data.brief,
+          is_active: true,
+        }),
+      })
+
+      if (saveResponse.ok) {
+        const saveData = await saveResponse.json()
+        const campaignId = existingCampaign?.id || saveData.campaign.id
+        success('Launch brief generated and saved!')
+        router.push(`/campaigns/${campaignId}`)
+        router.refresh()
+        return
+      }
+
+      // If auto-save failed, still show the brief in step 3 as fallback
       setStep(3)
     } catch (err) {
       console.error('Error generating brief:', err)
-      error('Failed to generate launch brief. Please try again.')
+      const msg = err instanceof Error ? err.message : 'Unknown error'
+      error(`Failed to generate launch brief: ${msg}`)
+      // Also use alert so the user can't miss it after a long wait
+      alert(`Launch brief generation failed: ${msg}\n\nPlease try again.`)
     } finally {
       setIsGenerating(false)
     }
@@ -120,7 +155,7 @@ export default function CampaignWizard({ existingCampaign }: CampaignWizardProps
           target_buyer: targetBuyer,
           price_point: pricePoint,
           geography,
-          launch_brief: null,
+          launch_brief: launchBrief || null,
           is_active: false,
         }),
       })
@@ -198,6 +233,7 @@ export default function CampaignWizard({ existingCampaign }: CampaignWizardProps
     <div className="max-w-4xl mx-auto">
       {/* Progress Steps */}
       <div className="mb-8">
+        <span className="sr-only">Step {step} of 3</span>
         <div className="flex items-center justify-between">
           {[
             { num: 1, label: 'Campaign Info' },
@@ -214,9 +250,9 @@ export default function CampaignWizard({ existingCampaign }: CampaignWizardProps
                   }`}
                 >
                   {step > s.num ? (
-                    <CheckCircle className="w-6 h-6" />
+                    <CheckCircle className="w-6 h-6" aria-hidden="true" />
                   ) : (
-                    <span className="font-semibold">{s.num}</span>
+                    <span className="font-semibold" aria-hidden="true">{s.num}</span>
                   )}
                 </div>
                 <span
@@ -248,10 +284,11 @@ export default function CampaignWizard({ existingCampaign }: CampaignWizardProps
 
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label htmlFor="campaign-name" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Campaign Name *
               </label>
               <input
+                id="campaign-name"
                 type="text"
                 value={campaignName}
                 onChange={(e) => setCampaignName(e.target.value)}
@@ -261,10 +298,11 @@ export default function CampaignWizard({ existingCampaign }: CampaignWizardProps
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label htmlFor="campaign-description" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Description
               </label>
               <textarea
+                id="campaign-description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Optional notes about this campaign..."
@@ -300,10 +338,11 @@ export default function CampaignWizard({ existingCampaign }: CampaignWizardProps
 
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label htmlFor="product-description" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Product Description *
               </label>
               <textarea
+                id="product-description"
                 value={productDescription}
                 onChange={(e) => setProductDescription(e.target.value)}
                 placeholder="e.g., HIPAA-compliant practice management software for dental offices with built-in patient communication tools"
@@ -313,10 +352,11 @@ export default function CampaignWizard({ existingCampaign }: CampaignWizardProps
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label htmlFor="target-buyer" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Target Buyer *
               </label>
               <textarea
+                id="target-buyer"
                 value={targetBuyer}
                 onChange={(e) => setTargetBuyer(e.target.value)}
                 placeholder="e.g., Dental practice owners and office managers at practices with 2-10 dentists"
@@ -325,12 +365,13 @@ export default function CampaignWizard({ existingCampaign }: CampaignWizardProps
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                <label htmlFor="price-point" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   Price Point
                 </label>
                 <input
+                  id="price-point"
                   type="text"
                   value={pricePoint}
                   onChange={(e) => setPricePoint(e.target.value)}
@@ -340,10 +381,11 @@ export default function CampaignWizard({ existingCampaign }: CampaignWizardProps
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                <label htmlFor="geography" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   Geography
                 </label>
                 <input
+                  id="geography"
                   type="text"
                   value={geography}
                   onChange={(e) => setGeography(e.target.value)}
@@ -407,7 +449,7 @@ export default function CampaignWizard({ existingCampaign }: CampaignWizardProps
           {/* AI Model Info Badge */}
           {modelInfo && (
             <div className="flex items-center justify-end gap-2 text-sm text-slate-600 dark:text-slate-400">
-              <Sparkles className="w-4 h-4 text-primary-500" />
+              <Sparkles className="w-4 h-4 text-primary-500" aria-hidden="true" />
               <span>
                 Generated by <span className="font-medium text-slate-900 dark:text-white">{modelInfo.name}</span> ({modelInfo.version})
               </span>

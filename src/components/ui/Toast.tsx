@@ -42,20 +42,23 @@ export default function Toast({ message, type = 'info', duration = 3000, onClose
 
   return (
     <div
+      role="alert"
+      aria-live="assertive"
       className={`fixed top-4 right-4 z-50 flex items-center gap-3 px-4 py-3 rounded-lg border shadow-lg transition-all duration-300 ${
         colors[type]
       } ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}
     >
-      <Icon className="h-5 w-5 flex-shrink-0" />
+      <Icon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
       <p className="text-sm font-medium">{message}</p>
       <button
         onClick={() => {
           setIsVisible(false)
           setTimeout(onClose, 300)
         }}
+        aria-label="Close notification"
         className="p-1 hover:opacity-70 transition-opacity"
       >
-        <X className="h-4 w-4" />
+        <X className="h-4 w-4" aria-hidden="true" />
       </button>
     </div>
   )

@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
+import { getAuthUser } from '@/lib/supabase/auth-bypass'
 import { Settings as SettingsIcon, Users, Lock, Bell, Palette } from 'lucide-react'
+import ModelSelector from '@/components/settings/ModelSelector'
 
 export const metadata = {
   title: 'Settings | LaunchPad',
@@ -10,10 +11,8 @@ export const metadata = {
 export default async function SettingsPage() {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    redirect('/login')
-  }
+  const { data: { user } } = await getAuthUser(supabase)
+  if (!user) return null
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -31,7 +30,7 @@ export default async function SettingsPage() {
         <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="p-2 rounded-lg bg-primary-50 dark:bg-primary-900/20">
-              <SettingsIcon className="h-5 w-5 text-primary-600 dark:text-primary-400" />
+              <SettingsIcon className="h-5 w-5 text-primary-600 dark:text-primary-400" aria-hidden="true" />
             </div>
             <div>
               <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
@@ -45,10 +44,11 @@ export default async function SettingsPage() {
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label htmlFor="settings-email" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Email
               </label>
               <input
+                id="settings-email"
                 type="email"
                 value={user.email}
                 disabled
@@ -69,7 +69,7 @@ export default async function SettingsPage() {
 
           <div className="flex items-center gap-3 mb-6">
             <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-900/20">
-              <Users className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+              <Users className="h-5 w-5 text-purple-600 dark:text-purple-400" aria-hidden="true" />
             </div>
             <div>
               <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
@@ -118,11 +118,14 @@ export default async function SettingsPage() {
           </div>
         </div>
 
+        {/* AI Models */}
+        <ModelSelector />
+
         {/* Notifications */}
         <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20">
-              <Bell className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <Bell className="h-5 w-5 text-blue-600 dark:text-blue-400" aria-hidden="true" />
             </div>
             <div>
               <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
@@ -161,7 +164,7 @@ export default async function SettingsPage() {
         <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/20">
-              <Palette className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+              <Palette className="h-5 w-5 text-indigo-600 dark:text-indigo-400" aria-hidden="true" />
             </div>
             <div>
               <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
@@ -175,10 +178,10 @@ export default async function SettingsPage() {
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label htmlFor="settings-theme" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Theme
               </label>
-              <select className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500">
+              <select id="settings-theme" className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500">
                 <option>System</option>
                 <option>Light</option>
                 <option>Dark</option>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { Search, Filter, ArrowUpDown, Mail, Phone, Building2, ExternalLink, Sparkles, Loader2, Users, TrendingUp } from 'lucide-react'
 import type { ProspectWithCampaign } from '@/lib/types/database'
 import Link from 'next/link'
@@ -33,8 +33,8 @@ export default function ProspectList({ initialProspects, campaigns }: ProspectLi
     apify_queries: string[]
   } | null>(null)
 
-  // Filter and sort prospects
-  const filteredProspects = prospects
+  // Filter and sort prospects (memoized to avoid recalculating on unrelated state changes)
+  const filteredProspects = useMemo(() => prospects
     .filter((prospect) => {
       const matchesSearch =
         searchQuery === '' ||
@@ -66,7 +66,7 @@ export default function ProspectList({ initialProspects, campaigns }: ProspectLi
       }
 
       return sortOrder === 'asc' ? comparison : -comparison
-    })
+    }), [prospects, searchQuery, statusFilter, campaignFilter, sortBy, sortOrder])
 
   const toggleSort = (field: 'created_at' | 'name' | 'score') => {
     if (sortBy === field) {
@@ -77,23 +77,25 @@ export default function ProspectList({ initialProspects, campaigns }: ProspectLi
     }
   }
 
-  const toggleSelectAll = () => {
+  const toggleSelectAll = useCallback(() => {
     if (selectedProspects.size === filteredProspects.length) {
       setSelectedProspects(new Set())
     } else {
       setSelectedProspects(new Set(filteredProspects.map(p => p.id)))
     }
-  }
+  }, [selectedProspects.size, filteredProspects])
 
-  const toggleSelectProspect = (id: string) => {
-    const newSelected = new Set(selectedProspects)
-    if (newSelected.has(id)) {
-      newSelected.delete(id)
-    } else {
-      newSelected.add(id)
-    }
-    setSelectedProspects(newSelected)
-  }
+  const toggleSelectProspect = useCallback((id: string) => {
+    setSelectedProspects(prev => {
+      const newSelected = new Set(prev)
+      if (newSelected.has(id)) {
+        newSelected.delete(id)
+      } else {
+        newSelected.add(id)
+      }
+      return newSelected
+    })
+  }, [])
 
   const handleScoreProspects = async () => {
     if (selectedProspects.size === 0) {
@@ -367,6 +369,7 @@ export default function ProspectList({ initialProspects, campaigns }: ProspectLi
             placeholder="Search prospects by name, email, or company..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            aria-label="Search prospects"
             className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
           />
         </div>
@@ -377,6 +380,7 @@ export default function ProspectList({ initialProspects, campaigns }: ProspectLi
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
+            aria-label="Filter by status"
             className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
           >
             <option value="all">All Status</option>
@@ -392,6 +396,7 @@ export default function ProspectList({ initialProspects, campaigns }: ProspectLi
         <select
           value={campaignFilter}
           onChange={(e) => setCampaignFilter(e.target.value)}
+          aria-label="Filter by campaign"
           className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
         >
           <option value="all">All Campaigns</option>
@@ -409,8 +414,9 @@ export default function ProspectList({ initialProspects, campaigns }: ProspectLi
       </div>
 
       {/* Prospect Table */}
-      <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-x-auto">
         <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+          <caption className="sr-only">Prospect list</caption>
           <thead className="bg-slate-50 dark:bg-slate-900">
             <tr>
               <th className="px-6 py-3 text-left">
@@ -418,17 +424,22 @@ export default function ProspectList({ initialProspects, campaigns }: ProspectLi
                   type="checkbox"
                   checked={selectedProspects.size === filteredProspects.length && filteredProspects.length > 0}
                   onChange={toggleSelectAll}
+                  aria-label="Select all prospects"
                   className="rounded border-slate-300 text-primary-600 focus:ring-primary-500"
                 />
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800"
-                onClick={() => toggleSort('name')}
+                className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+                aria-sort={sortBy === 'name' ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'}
               >
-                <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => toggleSort('name')}
+                  className="flex items-center gap-2 hover:text-slate-700 dark:hover:text-slate-200"
+                >
                   Name
                   <ArrowUpDown className="h-4 w-4" />
-                </div>
+                </button>
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 Contact
@@ -437,13 +448,17 @@ export default function ProspectList({ initialProspects, campaigns }: ProspectLi
                 Company
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800"
-                onClick={() => toggleSort('score')}
+                className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+                aria-sort={sortBy === 'score' ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'}
               >
-                <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => toggleSort('score')}
+                  className="flex items-center gap-2 hover:text-slate-700 dark:hover:text-slate-200"
+                >
                   Score
                   <ArrowUpDown className="h-4 w-4" />
-                </div>
+                </button>
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 Status
@@ -471,6 +486,7 @@ export default function ProspectList({ initialProspects, campaigns }: ProspectLi
                       type="checkbox"
                       checked={selectedProspects.has(prospect.id)}
                       onChange={() => toggleSelectProspect(prospect.id)}
+                      aria-label={`Select ${prospect.name || prospect.email}`}
                       className="rounded border-slate-300 text-primary-600 focus:ring-primary-500"
                     />
                   </td>

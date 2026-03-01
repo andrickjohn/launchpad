@@ -1,5 +1,3 @@
-'use client'
-
 import { Prospect, Outreach } from '@/lib/types/database'
 import { Mail, Linkedin, MessageSquare, Calendar, CheckCircle, XCircle, Clock, Eye } from 'lucide-react'
 
@@ -12,14 +10,14 @@ export default function ProspectTimeline({ prospect, outreach }: ProspectTimelin
   const getChannelIcon = (channel: string) => {
     switch (channel) {
       case 'email':
-        return <Mail className="w-5 h-5" />
+        return <Mail className="w-5 h-5" aria-hidden="true" />
       case 'linkedin':
-        return <Linkedin className="w-5 h-5" />
+        return <Linkedin className="w-5 h-5" aria-hidden="true" />
       case 'reddit':
       case 'facebook':
-        return <MessageSquare className="w-5 h-5" />
+        return <MessageSquare className="w-5 h-5" aria-hidden="true" />
       default:
-        return <Mail className="w-5 h-5" />
+        return <Mail className="w-5 h-5" aria-hidden="true" />
     }
   }
 
@@ -27,19 +25,19 @@ export default function ProspectTimeline({ prospect, outreach }: ProspectTimelin
     switch (status) {
       case 'sent':
       case 'delivered':
-        return <CheckCircle className="w-5 h-5 text-green-500" />
+        return <CheckCircle className="w-5 h-5 text-green-500" aria-hidden="true" />
       case 'opened':
-        return <Eye className="w-5 h-5 text-blue-500" />
+        return <Eye className="w-5 h-5 text-blue-500" aria-hidden="true" />
       case 'replied':
-        return <CheckCircle className="w-5 h-5 text-purple-500" />
+        return <CheckCircle className="w-5 h-5 text-purple-500" aria-hidden="true" />
       case 'bounced':
-        return <XCircle className="w-5 h-5 text-red-500" />
+        return <XCircle className="w-5 h-5 text-red-500" aria-hidden="true" />
       case 'scheduled':
-        return <Clock className="w-5 h-5 text-yellow-500" />
+        return <Clock className="w-5 h-5 text-yellow-500" aria-hidden="true" />
       case 'draft':
-        return <Calendar className="w-5 h-5 text-slate-400" />
+        return <Calendar className="w-5 h-5 text-slate-400" aria-hidden="true" />
       default:
-        return <Clock className="w-5 h-5 text-slate-400" />
+        return <Clock className="w-5 h-5 text-slate-400" aria-hidden="true" />
     }
   }
 
@@ -115,30 +113,33 @@ export default function ProspectTimeline({ prospect, outreach }: ProspectTimelin
   }
 
   return (
-    <div className="space-y-6">
+    <ol className="space-y-6">
       {timelineEvents.map((event, index) => (
-        <div key={index} className="relative">
+        <li key={index} className="relative">
           {/* Timeline line */}
           {index < timelineEvents.length - 1 && (
-            <div className="absolute left-6 top-12 w-0.5 h-full bg-slate-200 dark:bg-slate-700" />
+            <div className="absolute left-6 top-12 w-0.5 h-full bg-slate-200 dark:bg-slate-700" aria-hidden="true" />
           )}
 
           {/* Event card */}
           <div className="flex gap-4">
             {/* Icon */}
-            <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${
-              event.type === 'prospect_created'
-                ? 'bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-400'
-                : event.status
-                ? getStatusColor(event.status)
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-            }`}>
+            <div
+              className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${
+                event.type === 'prospect_created'
+                  ? 'bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-400'
+                  : event.status
+                  ? getStatusColor(event.status)
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+              }`}
+              aria-hidden="true"
+            >
               {event.type === 'prospect_created' ? (
-                <CheckCircle className="w-6 h-6" />
+                <CheckCircle className="w-6 h-6" aria-hidden="true" />
               ) : event.channel ? (
                 getChannelIcon(event.channel)
               ) : (
-                <Clock className="w-6 h-6" />
+                <Clock className="w-6 h-6" aria-hidden="true" />
               )}
             </div>
 
@@ -156,7 +157,7 @@ export default function ProspectTimeline({ prospect, outreach }: ProspectTimelin
                     {event.title}
                   </h3>
                   {event.status && (
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1" aria-hidden="true">
                       {getStatusIcon(event.status)}
                     </div>
                   )}
@@ -192,8 +193,8 @@ export default function ProspectTimeline({ prospect, outreach }: ProspectTimelin
               )}
             </div>
           </div>
-        </div>
+        </li>
       ))}
-    </div>
+    </ol>
   )
 }

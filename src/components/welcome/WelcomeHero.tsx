@@ -1,5 +1,3 @@
-'use client'
-
 import { Rocket, Target, Zap, Users, TrendingUp, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 

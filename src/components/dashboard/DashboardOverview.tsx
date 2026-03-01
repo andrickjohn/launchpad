@@ -1,5 +1,3 @@
-'use client'
-
 import { Target, Users, Mail, TrendingUp, CheckCircle2, MessageSquare } from 'lucide-react'
 
 interface DashboardOverviewProps {
@@ -80,7 +78,7 @@ export default function DashboardOverview({ stats }: DashboardOverviewProps) {
           >
             <div className="flex items-start justify-between mb-4">
               <div className={`p-3 rounded-lg ${card.bg}`}>
-                <Icon className={`h-6 w-6 ${card.color}`} />
+                <Icon className={`h-6 w-6 ${card.color}`} aria-hidden="true" />
               </div>
             </div>
             <h3 className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">

@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { getAuthUser } from '@/lib/supabase/auth-bypass'
 import { Plus } from 'lucide-react'
 import { getCampaigns } from '@/lib/db/campaigns'
 import ProspectForm from '@/components/prospects/ProspectForm'
@@ -7,7 +8,7 @@ export default async function NewProspectPage() {
   const supabase = await createClient()
   const {
     data: { user },
-  } = await supabase.auth.getUser()
+  } = await getAuthUser(supabase)
 
   // Fetch campaigns for the dropdown
   const campaigns = await getCampaigns()

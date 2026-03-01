@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { getModelId, getModelInfo, MODEL_ASSIGNMENTS } from '@/lib/ai/models'
+import { getAuthUser } from '@/lib/supabase/auth-bypass'
 
 /**
  * POST /api/campaigns/generate-brief
@@ -41,8 +42,8 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
 
-    // Verify authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    // Verify authentication (with dev bypass support)
+    const { data: { user }, error: authError } = await getAuthUser(supabase)
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -130,7 +131,7 @@ Respond with ONLY a JSON object in this exact format:
 
     const message = await anthropic.messages.create({
       model: modelId,
-      max_tokens: 4000,
+      max_tokens: 8000,
       messages: [
         {
           role: 'user',
@@ -144,13 +145,40 @@ Respond with ONLY a JSON object in this exact format:
       ? message.content[0].text
       : ''
 
+    // Check if the response was truncated
+    if (message.stop_reason === 'max_tokens') {
+      console.warn('Brief response was truncated — attempting JSON repair')
+    }
+
     // Extract JSON from response
     const jsonMatch = responseText.match(/\{[\s\S]*\}/)
     if (!jsonMatch) {
       throw new Error('Failed to parse AI response')
     }
 
-    const brief = JSON.parse(jsonMatch[0])
+    let brief
+    try {
+      brief = JSON.parse(jsonMatch[0])
+    } catch {
+      // JSON was truncated — attempt repair by closing open structures
+      let repaired = jsonMatch[0]
+      // Close any unclosed strings
+      const quoteCount = (repaired.match(/(?<!\\)"/g) || []).length
+      if (quoteCount % 2 !== 0) repaired += '"'
+      // Close open arrays and objects by counting brackets
+      const openBrackets = (repaired.match(/\[/g) || []).length - (repaired.match(/\]/g) || []).length
+      const openBraces = (repaired.match(/\{/g) || []).length - (repaired.match(/\}/g) || []).length
+      // Remove any trailing comma before closing
+      repaired = repaired.replace(/,\s*$/, '')
+      for (let i = 0; i < openBrackets; i++) repaired += ']'
+      for (let i = 0; i < openBraces; i++) repaired += '}'
+      try {
+        brief = JSON.parse(repaired)
+        console.log('Successfully repaired truncated JSON')
+      } catch {
+        throw new Error('AI response was truncated and could not be repaired. Please try again.')
+      }
+    }
 
     return NextResponse.json({
       success: true,

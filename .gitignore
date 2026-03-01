@@ -37,3 +37,10 @@ next-env.d.ts
 
 # supabase
 /supabase/.temp
+
+# backups
+*.backup
+
+# ad-hoc test/debug files
+test-*
+check-env.js

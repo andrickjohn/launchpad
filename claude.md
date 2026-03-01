@@ -467,3 +467,69 @@ Before presenting any stage as "done" to the user, confirm:
 - [ ] Lighthouse Performance 80+, Accessibility 90+
 - [ ] The user flow for that stage works end to end
 - [ ] PROGRESS.md is current
+
+---
+
+## MODEL ROUTING PROTOCOL (COST OPTIMIZATION)
+
+Use the cheapest model capable of handling each task. This saves significant cost
+without sacrificing quality. **Always be explicit** when delegating to a subagent
+on a different model — tell the user which model and why.
+
+### Prompt Evaluation — At the Start of Every User Prompt
+
+Before doing any work, evaluate the prompt complexity and state your recommendation:
+
+```
+**Model recommendation**: [Opus/Sonnet/Haiku] — [one-line reason]
+```
+
+If the current model is more expensive than needed, suggest the user switch with `/model`.
+If subtasks can be delegated cheaper, do so via the Agent tool's `model` parameter.
+
+### Routing Rules
+
+**Use Opus (current session) for:**
+- Architecture decisions and multi-file refactors
+- Complex debugging with unclear root causes
+- Tasks requiring deep context of the full codebase
+- Planning and design work
+- Security-sensitive changes
+- Anything requiring judgment calls across multiple systems
+
+**Delegate to Sonnet (via Agent tool, `model: "sonnet"`) for:**
+- Straightforward code edits with clear instructions
+- Writing tests for existing code
+- CSS/styling changes and responsive fixes
+- Adding error handling to existing patterns
+- File creation from clear templates/specs
+- Code review of isolated components
+- Lighthouse audit fixes (a11y, perf) with clear remediation
+
+**Delegate to Haiku (via Agent tool, `model: "haiku"`) for:**
+- File searching and codebase exploration
+- Reading files and summarizing contents
+- Grep/glob operations across the codebase
+- Simple lookups ("what does this function return?")
+- Generating boilerplate from examples
+
+### Transparency Requirement
+
+**Before launching a subagent**, announce it:
+```
+> Delegating to [Sonnet/Haiku] (agent): [what it's doing] — [estimated scope, e.g. "3 files", "quick lookup"]
+```
+
+**For longer-running agents** (multiple files, complex edits), add context:
+```
+> Sonnet agent working on: [specific task] — touching [file list or count]
+```
+
+**When a subagent returns**, summarize what it did and the outcome.
+Never silently delegate. The user should always know which model is doing what work.
+
+### When NOT to Delegate
+- If the task requires back-and-forth with the user (only main model can do that)
+- If the subtask depends on context from earlier in the conversation
+- If the cost of re-explaining context exceeds the savings
+- If the task is security-sensitive (auth, secrets, permissions)

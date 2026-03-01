@@ -1,5 +1,3 @@
-'use client'
-
 import { Plus } from 'lucide-react'
 import type { Template } from '@/lib/types/database'
 
@@ -18,7 +16,12 @@ export default function SequenceBuilder({ prospects, templates }: SequenceBuilde
       <p className="text-slate-600 dark:text-slate-400 mb-6">
         Create 3-step automated email drip sequences with scheduling
       </p>
-      <button className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+      <button
+        disabled
+        aria-disabled="true"
+        title="Sequences are coming soon"
+        className="px-4 py-2 bg-primary-600 text-white rounded-lg opacity-50 cursor-not-allowed transition-colors"
+      >
         Create Sequence
       </button>
     </div>

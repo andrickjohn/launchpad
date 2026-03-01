@@ -82,19 +82,19 @@ export default async function ActivityFeed({ userId }: ActivityFeedProps) {
 
       {topActivities.length === 0 ? (
         <div className="text-center py-12">
-          <FileText className="h-12 w-12 text-slate-400 mx-auto mb-3" />
+          <FileText className="h-12 w-12 text-slate-400 mx-auto mb-3" aria-hidden="true" />
           <p className="text-slate-600 dark:text-slate-400">
             No activity yet. Start by creating a campaign and adding prospects!
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <ul className="space-y-4">
           {topActivities.map((activity, i) => {
             const Icon = activity.icon
             return (
-              <div key={i} className="flex items-start gap-4">
+              <li key={i} className="flex items-start gap-4">
                 <div className={`p-2 rounded-lg ${activity.color} flex-shrink-0`}>
-                  <Icon className="h-5 w-5" />
+                  <Icon className="h-5 w-5" aria-hidden="true" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-slate-900 dark:text-white">
@@ -107,10 +107,10 @@ export default async function ActivityFeed({ userId }: ActivityFeedProps) {
                     {new Date(activity.timestamp).toLocaleString()}
                   </p>
                 </div>
-              </div>
+              </li>
             )
           })}
-        </div>
+        </ul>
       )}
     </div>
   )
