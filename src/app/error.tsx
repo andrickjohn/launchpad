@@ -27,7 +27,7 @@ export default function ErrorBoundary({
                 </h2>
 
                 <p className="text-slate-600 dark:text-slate-400 mb-8">
-                    An unexpected error occurred in the application. Let's try to recover.
+                    An unexpected error occurred in the application. Let&apos;s try to recover.
                 </p>
 
                 <div className="flex flex-col gap-3">
