@@ -6,29 +6,94 @@ LOCAL=$(git rev-parse @ 2>/dev/null || echo "LOCAL")
 REMOTE=$(git rev-parse @{u} 2>/dev/null || echo "REMOTE")
 BASE=$(git merge-base @ @{u} 2>/dev/null || echo "BASE")
 
+DIR_STATUS=$(git status -s)
+
+echo "----------------------------------------"
+
 if [[ "$LOCAL" == "$REMOTE" ]]; then
-    echo "✅ Up-to-date with remote. No missing or extra files to sync."
-elif [[ "$LOCAL" == "$BASE" ]]; then
-    echo "⚠️ Remote has newer changes."
-    git diff --stat @...@{u}
-    read -p "Do you want to pull these changes and overwrite local? (y/N) " -n 1 -r
-    echo
-    if [[ "$REPLY" =~ ^[Yy]$ ]]; then
-        git pull origin main
-        echo "✅ Sync complete."
+    if [[ -z "$DIR_STATUS" ]]; then
+        echo "🔍 Scenario 4: Clean and Matched"
+        echo "✅ Everything is perfectly in sync. Nothing to do."
+        exit 0
     else
-        echo "❌ Sync cancelled."
+        echo "🔍 Scenario 2: Local Changes, Remote Up-to-date"
+        echo "📦 You have new code ready to ship to Vercel/GitHub."
+        git status -s
+        read -p "Proceed with adding all changes, committing, and pushing? (y/N) " -n 1 -r
+        echo
+        if [[ "$REPLY" =~ ^[Yy]$ ]]; then
+            read -p "Enter commit message: " msg
+            if [[ -z "$msg" ]]; then
+                msg="Update from launchpad terminal"
+            fi
+            git add .
+            git commit -m "$msg"
+            git push origin main
+            echo "✅ Shipped successfully."
+        else
+            echo "❌ Ship cancelled."
+        fi
+    fi
+elif [[ "$LOCAL" == "$BASE" ]]; then
+    if [[ -z "$DIR_STATUS" ]]; then
+        echo "🔍 Scenario 1: Remote is Ahead, Local is Clean"
+        echo "📥 Pulling latest changes from GitHub..."
+        git pull origin main
+        echo "✅ Synced with Cloud."
+    else
+        echo "🔍 Scenario 3: Remote is Ahead AND you have uncommitted local changes"
+        echo "⚠️ Safety first: Stashing your local work, pulling remote, then popping stash."
+        git stash
+        git pull origin main
+        git stash pop
+        echo "✅ Synced with Cloud, and your local changes are restored."
+        echo "💡 If you are ready to ship these changes, run ./sync again."
     fi
 elif [[ "$REMOTE" == "$BASE" ]]; then
-    echo "🌟 Your local version is newer than the remote!"
-    echo "💡 You should run './ship' to push these changes up to GitHub safely."
+    echo "🔍 Scenario 2 (Advanced): Local Commits Ahead of Remote"
+    if [[ -n "$DIR_STATUS" ]]; then
+        echo "📦 You have both local commits AND uncommitted changes ready to ship."
+        git status -s
+        read -p "Proceed with adding all changes, committing, and pushing? (y/N) " -n 1 -r
+        echo
+        if [[ "$REPLY" =~ ^[Yy]$ ]]; then
+            read -p "Enter commit message: " msg
+            if [[ -z "$msg" ]]; then
+                msg="Update from launchpad terminal"
+            fi
+            git add .
+            git commit -m "$msg"
+            git push origin main
+            echo "✅ Shipped successfully."
+        else
+            echo "❌ Ship cancelled."
+        fi
+    else
+        echo "🚀 You have local commits ready to push."
+        read -p "Proceed with pushing? (y/N) " -n 1 -r
+        echo
+        if [[ "$REPLY" =~ ^[Yy]$ ]]; then
+            git push origin main
+            echo "✅ Shipped successfully."
+        else
+            echo "❌ Ship cancelled."
+        fi
+    fi
 else
     echo "🚨 Warning: Local and remote have diverged! Strange behavior detected."
     git diff --stat @...@{u}
     read -p "Do you want to attempt a rebase pull? (y/N) " -n 1 -r
     echo
     if [[ "$REPLY" =~ ^[Yy]$ ]]; then
+        if [[ -n "$DIR_STATUS" ]]; then
+            echo "⚠️ Stashing local changes first..."
+            git stash
+        fi
         git pull --rebase origin main
+        if [[ -n "$DIR_STATUS" ]]; then
+            echo "⚠️ Restoring local changes..."
+            git stash pop
+        fi
         echo "✅ Sync complete."
     else
         echo "❌ Sync cancelled. Please resolve manually."
