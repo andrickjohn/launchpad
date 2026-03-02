@@ -185,7 +185,7 @@ export default function CSVImport({ campaigns }: CSVImportProps) {
               CSV Format
             </h3>
             <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
-              Your CSV should include an "email" column (required). Optional columns: name, company,
+              Your CSV should include an &quot;email&quot; column (required). Optional columns: name, company,
               title, phone, linkedin, website.
             </p>
             <button

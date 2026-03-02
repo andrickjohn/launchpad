@@ -265,3 +265,17 @@
 **Bottom Line**: LaunchPad is **production-ready for personal use**. The three-screen core experience is complete, polished, and genuinely useful. All AI features work. Email sending works. It's a real product that validates the "compose cheap APIs" philosophy.
 
 Ready to launch! 🚀
+
+## Smart List Builder — [Status: ✅ Complete]
+- Built: UI for building prospect lists with Claude Haiku AI scraped recommendations, ScrapeJobs queue UI, and webhook integration for Apify.
+- Tests: Passed linter and typecheck without errors.
+- Issues: Corrected apify-client integration issues with mocks, fixed structural errors in the route try/catches.
+- Time: ~2 hours
+
+## Smart List Builder: Alternative Generation & Active Campaigns UI — [Status: ✅ Complete]
+- Built: UI improvements adding "Review Actions" button directly to Active Campaign cards.
+- Built: Full Apify scraper ecosystem support in Smart List Builder step 2.
+- Built: Real-time alternative scraping config generation using Claude Haiku to configure any requested scraper strategy.
+- Tests: Passed linter and typecheck without errors.
+- Issues: Addressed typing errors in OutreachTabs and UpcomingSchedule that caused the build to fail.
+- Time: ~1 hour

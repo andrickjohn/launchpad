@@ -28,7 +28,7 @@ export default function LoginPage() {
 
       setMessage({
         type: 'success',
-        text: 'Check your email for the magic link!',
+        text: 'Enter your email below to receive a magic link. We&apos;ll create an account if you don&apos;t have one.',
       })
     } catch (error) {
       setMessage({
@@ -82,11 +82,10 @@ export default function LoginPage() {
               <div
                 role="alert"
                 aria-live="polite"
-                className={`p-4 rounded-md ${
-                  message.type === 'success'
-                    ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300'
-                    : 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300'
-                }`}
+                className={`p-4 rounded-md ${message.type === 'success'
+                  ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300'
+                  : 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300'
+                  }`}
               >
                 <p className="text-sm">{message.text}</p>
               </div>
@@ -102,7 +101,7 @@ export default function LoginPage() {
           </form>
 
           <p className="mt-6 text-center text-xs text-slate-500 dark:text-slate-400">
-            We'll email you a magic link for passwordless sign in
+            We&apos;ll email you a magic link for passwordless sign in
           </p>
         </div>
       </div>

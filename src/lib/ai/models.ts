@@ -24,10 +24,10 @@ export interface ModelInfo {
  */
 export const CLAUDE_MODELS: Record<ModelTier, ModelInfo> = {
   haiku: {
-    id: 'claude-3-5-haiku-20241022',
-    name: 'Claude 3.5 Haiku',
+    id: 'claude-3-haiku-20240307',
+    name: 'Claude 3 Haiku',
     tier: 'haiku',
-    version: '3.5 (Oct 2024)',
+    version: '3.0 (Mar 2024)',
     costPer1MTokens: {
       input: 0.25,
       output: 1.25,
@@ -71,6 +71,7 @@ export const MODEL_ASSIGNMENTS = {
   prospectSimilarity: 'haiku' as ModelTier, // Pattern matching
   emailDrafting: 'haiku' as ModelTier, // Simple drafting
   socialDrafting: 'haiku' as ModelTier, // Simple drafting
+  categorization: 'haiku' as ModelTier, // Apify scrape selection
 } as const
 
 export type FeatureKey = keyof typeof MODEL_ASSIGNMENTS
@@ -82,6 +83,7 @@ export const FEATURE_LABELS: Record<FeatureKey, string> = {
   prospectSimilarity: 'Prospect Similarity',
   emailDrafting: 'Email Drafting',
   socialDrafting: 'Social Drafting',
+  categorization: 'Data Categorization',
 }
 
 export const FEATURE_COST_ESTIMATES: Record<FeatureKey, string> = {
@@ -91,6 +93,7 @@ export const FEATURE_COST_ESTIMATES: Record<FeatureKey, string> = {
   prospectSimilarity: '~500 input + ~300 output',
   emailDrafting: '~300 input + ~200 output per email',
   socialDrafting: '~300 input + ~200 output per post',
+  categorization: '~1K input + ~500 output',
 }
 
 /**
@@ -118,7 +121,7 @@ export function getAllModels(): ModelInfo[] {
  * Get model tier from ID (for display purposes)
  */
 export function getModelTierFromId(modelId: string): ModelTier | null {
-  const entry = Object.entries(CLAUDE_MODELS).find(([_, info]) => info.id === modelId)
+  const entry = Object.entries(CLAUDE_MODELS).find(([, info]) => info.id === modelId)
   return entry ? (entry[0] as ModelTier) : null
 }
 
@@ -155,6 +158,7 @@ export function estimateFeatureCost(feature: FeatureKey, tier?: ModelTier): stri
     prospectSimilarity: { input: 500, output: 300 },
     emailDrafting: { input: 300, output: 200 },
     socialDrafting: { input: 300, output: 200 },
+    categorization: { input: 1000, output: 500 },
   }
   const usage = estimates[feature]
   const cost = (usage.input / 1_000_000) * model.costPer1MTokens.input +

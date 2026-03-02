@@ -6,7 +6,7 @@ interface SequenceBuilderProps {
   templates: Template[]
 }
 
-export default function SequenceBuilder({ prospects, templates }: SequenceBuilderProps) {
+export default function SequenceBuilder({ }: SequenceBuilderProps) {
   return (
     <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-12 text-center">
       <Plus className="h-12 w-12 text-slate-400 mx-auto mb-4" />

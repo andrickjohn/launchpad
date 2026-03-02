@@ -6,7 +6,7 @@ import { Zap } from 'lucide-react'
 import AIProcessingIndicator from '@/components/ui/AIProcessingIndicator'
 import { useToast } from '@/components/ui/Toast'
 import Toast from '@/components/ui/Toast'
-import { CLAUDE_MODELS, MODEL_ASSIGNMENTS, estimateFeatureCost, getModelForFeature } from '@/lib/ai/models'
+import { CLAUDE_MODELS, estimateFeatureCost, getModelForFeature } from '@/lib/ai/models'
 
 interface ActivateCampaignButtonProps {
   campaignId: string

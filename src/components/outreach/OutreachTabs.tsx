@@ -20,7 +20,6 @@ interface OutreachTabsProps {
 
 export default function OutreachTabs({
   initialDrafts,
-  initialScheduled,
   initialTemplates,
   prospects,
 }: OutreachTabsProps) {
@@ -54,10 +53,9 @@ export default function OutreachTabs({
                 onClick={() => setActiveTab(tab.id)}
                 className={`
                   flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors
-                  ${
-                    isActive
-                      ? 'border-primary-600 text-primary-600 dark:text-primary-400'
-                      : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-300'
+                  ${isActive
+                    ? 'border-primary-600 text-primary-600 dark:text-primary-400'
+                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-300'
                   }
                 `}
               >

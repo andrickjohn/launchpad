@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { updateCampaign } from '@/lib/db/campaigns'
+import { updateCampaign, deleteCampaign } from '@/lib/db/campaigns'
 
 interface RouteParams {
   params: Promise<{
@@ -18,5 +18,16 @@ export async function PATCH(request: Request, { params }: RouteParams) {
   } catch (error) {
     console.error('Error updating campaign:', error)
     return NextResponse.json({ error: 'Failed to update campaign' }, { status: 500 })
+  }
+}
+
+export async function DELETE(request: Request, { params }: RouteParams) {
+  try {
+    const { id } = await params
+    await deleteCampaign(id)
+    return NextResponse.json({ success: true }, { status: 200 })
+  } catch (error) {
+    console.error('Error deleting campaign:', error)
+    return NextResponse.json({ error: 'Failed to delete campaign' }, { status: 500 })
   }
 }

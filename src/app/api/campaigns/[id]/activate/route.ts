@@ -147,7 +147,7 @@ RULES:
 
     const generatedActions = actions
       .filter(a => validChannels.includes(a.channel) && validTypes.includes(a.action_type))
-      .map((a, i) => ({
+      .map((a) => ({
         id: crypto.randomUUID(),
         day: Math.min(Math.max(a.day, 1), 7),
         channel: a.channel,

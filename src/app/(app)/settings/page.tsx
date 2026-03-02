@@ -21,7 +21,7 @@ export default async function SettingsPage() {
           Settings
         </h1>
         <p className="text-slate-600 dark:text-slate-400">
-          Manage your account and preferences
+          Here you can manage your LaunchPad preferences, API connections, and account settings. Contact john@launchpad.com if you&apos;re experiencing any issues.
         </p>
       </div>
 
@@ -111,8 +111,8 @@ export default async function SettingsPage() {
 
           <div className="mt-6 p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/10 dark:to-pink-900/10 rounded-lg border border-purple-200 dark:border-purple-800">
             <p className="text-sm text-purple-900 dark:text-purple-200">
-              <strong>Why we're building this:</strong> VA mode lets you delegate execution while maintaining
-              control. Full activity logging ensures transparency. We're polishing the core experience first,
+              <strong>Why we&apos;re building this:</strong> VA mode lets you delegate execution while maintaining
+              control. Full activity logging ensures transparency. We&apos;re polishing the core experience first,
               then adding team features.
             </p>
           </div>

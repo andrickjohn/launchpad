@@ -6,9 +6,7 @@ import CSVImport from '@/components/prospects/CSVImport'
 
 export default async function ImportProspectsPage() {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await getAuthUser(supabase)
+  await getAuthUser(supabase)
 
   // Fetch campaigns for the dropdown
   const campaigns = await getCampaigns()

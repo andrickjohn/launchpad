@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { UserPlus, Mail, MessageSquare, Target, FileText } from 'lucide-react'
+import { UserPlus, Mail, MessageSquare, FileText } from 'lucide-react'
 
 interface ActivityFeedProps {
   userId: string
@@ -38,7 +38,7 @@ export default async function ActivityFeed({ userId }: ActivityFeedProps) {
     title: string
     subtitle: string
     timestamp: string
-    icon: any
+    icon: React.ElementType
     color: string
   }> = []
 
@@ -54,7 +54,7 @@ export default async function ActivityFeed({ userId }: ActivityFeedProps) {
   })
 
   recentOutreach?.forEach((o) => {
-    const prospectData = o.prospect as any
+    const prospectData = o.prospect as unknown as Record<string, unknown>
     const prospectName = prospectData?.name || prospectData?.email || 'Unknown'
     activities.push({
       type: 'outreach',

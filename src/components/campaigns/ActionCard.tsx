@@ -78,16 +78,10 @@ export default function ActionCard({ action, onStatusChange, onContentUpdate, mo
     if (Array.isArray(c.steps)) return c.steps.map((s, i) => `${i + 1}. ${typeof s === 'string' ? s : (s as Record<string, unknown>).description || JSON.stringify(s)}`).join('\n')
     // Scrape
     if (c.actor_id) return `${c.description || c.actor_id}\nQueries: ${Array.isArray(c.queries) ? c.queries.join(', ') : ''}`
-    // Fallback
     return JSON.stringify(content, null, 2)
   }
 
-  const handleCopy = () => {
-    const text = getTextFromContent(action.content as Record<string, unknown>)
-    navigator.clipboard.writeText(text)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
+
 
   const renderContent = () => {
     if (action.action_type === 'email_draft') {
@@ -263,7 +257,7 @@ export default function ActionCard({ action, onStatusChange, onContentUpdate, mo
         role="button"
         tabIndex={0}
         aria-expanded={isExpanded}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); !isEditing && setIsExpanded(!isExpanded) } }}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (!isEditing) setIsExpanded(!isExpanded) } }}
       >
         {/* Channel badge */}
         <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium ${channel.color}`}>
@@ -360,7 +354,13 @@ export default function ActionCard({ action, onStatusChange, onContentUpdate, mo
             {mode === 'execute' && action.status !== 'completed' && (
               <>
                 <button
-                  onClick={(e) => { e.stopPropagation(); handleCopy() }}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    const text = getTextFromContent(action.content as Record<string, unknown>)
+                    navigator.clipboard.writeText(text)
+                    setCopied(true)
+                    setTimeout(() => setCopied(false), 2000)
+                  }}
                   className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                 >
                   <Copy className="h-3.5 w-3.5" aria-hidden="true" />

@@ -1,6 +1,6 @@
 /**
  * Database types for LaunchPad
- * These types match the database schema from 001_initial_schema.sql
+ * These types match the database schema from 001_initial_schema.sql and subsequent migrations.
  */
 
 export type UserRole = 'owner' | 'va'
@@ -44,6 +44,31 @@ export interface ScrapeActionContent {
   description: string
 }
 
+export type ScrapeJobStatus = 'pending' | 'running' | 'completed' | 'failed'
+
+export interface ProspectList {
+  id: string
+  user_id: string
+  name: string
+  description: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface ScrapeJob {
+  id: string
+  user_id: string
+  list_id: string
+  status: ScrapeJobStatus
+  actor_id: string
+  run_input: Record<string, unknown>
+  target_count: number | null
+  cost_usd: number
+  external_run_id: string | null
+  created_at: string
+  updated_at: string
+}
+
 export interface TaskActionContent {
   description: string
   estimated_time?: string
@@ -78,6 +103,7 @@ export interface Prospect {
   id: string
   user_id: string
   campaign_id: string | null
+  list_id: string | null
   email: string
   name: string | null
   company: string | null

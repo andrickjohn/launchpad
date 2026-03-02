@@ -1,8 +1,8 @@
 import { Calendar, Clock, Mail } from 'lucide-react'
-import type { Outreach } from '@/lib/types/database'
+// type Outreach not used directly in this file's imports as we define the array loosely, but keeping it clean
 
 interface UpcomingScheduleProps {
-  scheduled: any[] // Outreach with prospect relation
+  scheduled: Array<Record<string, unknown>> // Outreach with prospect relation
 }
 
 export default function UpcomingSchedule({ scheduled }: UpcomingScheduleProps) {
@@ -24,14 +24,15 @@ export default function UpcomingSchedule({ scheduled }: UpcomingScheduleProps) {
         </div>
       ) : (
         <ul className="space-y-3">
-          {scheduled.map((item) => {
-            const scheduledDate = item.scheduled_at ? new Date(item.scheduled_at) : null
-            const prospectData = item.prospect as any
+          {scheduled.map((item, index) => {
+            const dateStr = typeof item.scheduled_at === 'string' ? item.scheduled_at : null
+            const scheduledDate = dateStr ? new Date(dateStr) : null
+            const prospectData = item.prospect as unknown as Record<string, unknown>
             const prospectName = prospectData?.name || prospectData?.email || 'Unknown'
 
             return (
               <li
-                key={item.id}
+                key={typeof item.id === 'string' ? item.id : index}
                 className="flex items-start gap-4 p-4 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
               >
                 <div className="p-2 rounded-lg bg-primary-50 dark:bg-primary-900/20 flex-shrink-0">
@@ -39,10 +40,10 @@ export default function UpcomingSchedule({ scheduled }: UpcomingScheduleProps) {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-slate-900 dark:text-white mb-1">
-                    {item.subject || 'No subject'}
+                    {(typeof item.subject === 'string' && item.subject) || 'No subject'}
                   </p>
                   <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
-                    To: {prospectName}
+                    To: {String(prospectName)}
                   </p>
                   {scheduledDate && (
                     <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-500">

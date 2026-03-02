@@ -7,7 +7,7 @@ interface SocialDraftsProps {
   prospects: Array<{ id: string; name: string | null; email: string }>
 }
 
-export default function SocialDrafts({ prospects }: SocialDraftsProps) {
+export default function SocialDrafts({ }: SocialDraftsProps) {
   const [platform, setPlatform] = useState<'linkedin' | 'reddit' | 'facebook'>('linkedin')
   const [draft, setDraft] = useState('')
 
@@ -29,11 +29,10 @@ export default function SocialDrafts({ prospects }: SocialDraftsProps) {
         <button
           onClick={() => setPlatform('linkedin')}
           aria-pressed={platform === 'linkedin'}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-            platform === 'linkedin'
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${platform === 'linkedin'
               ? 'bg-blue-600 text-white'
               : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
-          }`}
+            }`}
         >
           <Linkedin className="h-5 w-5" aria-hidden="true" />
           LinkedIn
@@ -41,11 +40,10 @@ export default function SocialDrafts({ prospects }: SocialDraftsProps) {
         <button
           onClick={() => setPlatform('reddit')}
           aria-pressed={platform === 'reddit'}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-            platform === 'reddit'
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${platform === 'reddit'
               ? 'bg-orange-600 text-white'
               : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
-          }`}
+            }`}
         >
           <MessageCircle className="h-5 w-5" aria-hidden="true" />
           Reddit
@@ -53,11 +51,10 @@ export default function SocialDrafts({ prospects }: SocialDraftsProps) {
         <button
           onClick={() => setPlatform('facebook')}
           aria-pressed={platform === 'facebook'}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-            platform === 'facebook'
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${platform === 'facebook'
               ? 'bg-blue-700 text-white'
               : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
-          }`}
+            }`}
         >
           <Facebook className="h-5 w-5" aria-hidden="true" />
           Facebook

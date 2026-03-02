@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
 import { ArrowLeft, CheckCircle2, Rocket } from 'lucide-react'
 import Link from 'next/link'
 import DayGroup from './DayGroup'
@@ -15,7 +14,7 @@ interface ActionReviewPageProps {
 }
 
 export default function ActionReviewPage({ campaign, initialActions }: ActionReviewPageProps) {
-  const router = useRouter()
+  // router not needed yet
   const { toasts, removeToast, success, error } = useToast()
   const [actions, setActions] = useState(initialActions)
 

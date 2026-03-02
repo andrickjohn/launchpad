@@ -2,14 +2,14 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Users, Send, LayoutDashboard, LogOut, Settings, Rocket, X } from 'lucide-react'
+import { Send, LayoutDashboard, LogOut, Settings, Rocket, X, Target } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import packageInfo from '../../package.json'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Prospects', href: '/prospects', icon: Users },
+  { name: 'Campaigns', href: '/prospects', icon: Target },
   { name: 'Outreach', href: '/outreach', icon: Send },
 ]
 

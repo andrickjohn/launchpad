@@ -35,9 +35,9 @@ export async function GET() {
 
         anthropicStatus = 'success'
         testMessage = message.content[0].type === 'text' ? message.content[0].text : 'Response received'
-      } catch (error: any) {
+      } catch (error: unknown) {
         anthropicStatus = 'error'
-        testMessage = error.message || String(error)
+        testMessage = error instanceof Error ? error.message : String(error)
       }
     }
 
@@ -64,11 +64,11 @@ export async function GET() {
         testMessage: testMessage,
       },
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json(
       {
         status: 'error',
-        error: error.message || String(error),
+        error: error instanceof Error ? error.message : String(error),
       },
       { status: 500 }
     )

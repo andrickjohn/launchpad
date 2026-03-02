@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, Edit, Trash2 } from 'lucide-react'
+import { Plus, Trash2 } from 'lucide-react'
 import type { Template } from '@/lib/types/database'
 
 interface TemplateLibraryProps {
@@ -218,7 +218,7 @@ export default function TemplateLibrary({ templates, setTemplates }: TemplateLib
         {templates.length === 0 && !isCreating && (
           <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-12 text-center">
             <p className="text-slate-600 dark:text-slate-400">
-              No templates yet. Click "New Template" to create one.
+              No templates yet. Click &quot;New Template&quot; to create one.
             </p>
           </div>
         )}
