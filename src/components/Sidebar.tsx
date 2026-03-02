@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { Users, Send, LayoutDashboard, LogOut, Settings, Rocket, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import packageInfo from '../../package.json'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -141,7 +142,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             </div>
           </nav>
 
-          <div className="p-4">
+          <div className="p-4 flex flex-col">
             <button
               onClick={handleLogout}
               className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-400 hover:bg-red-900/20 hover:text-red-400 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
@@ -149,6 +150,16 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               <LogOut className="h-5 w-5 shrink-0" aria-hidden="true" />
               Logout
             </button>
+
+            <div className="mt-6 flex flex-col items-center justify-center gap-2 text-xs text-slate-500">
+              <span className="font-mono font-medium tracking-wide">v{packageInfo.version}</span>
+              <span className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 shadow-inner">
+                <span className={`w-2 h-2 rounded-full ${process.env.NEXT_PUBLIC_VERCEL_ENV ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]'}`} />
+                <span className="font-medium tracking-wide">
+                  {process.env.NEXT_PUBLIC_VERCEL_ENV ? 'Full Cloud' : 'Local'}
+                </span>
+              </span>
+            </div>
           </div>
         </div>
       </aside>
