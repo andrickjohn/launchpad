@@ -279,3 +279,9 @@ Ready to launch! 🚀
 - Tests: Passed linter and typecheck without errors.
 - Issues: Addressed typing errors in OutreachTabs and UpcomingSchedule that caused the build to fail.
 - Time: ~1 hour
+
+## Sync Script / Vercel Deploy Fix — [Status: ✅ Complete]
+- Built: Investigated frozen Vercel deployments and discovered string escaping error in `error.tsx`
+- Tests: Ran `npm run build` locally to reproduce and verify fixes
+- Issues: Addressed React unescaped entity issue preventing Vercel builds from completing
+- Time: ~30 minutes

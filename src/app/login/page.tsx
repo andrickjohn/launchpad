@@ -2,14 +2,18 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Mail } from 'lucide-react'
+import { Mail, Lock, Loader2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
+  const router = useRouter()
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [isSignUp, setIsSignUp] = useState(false)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setMessage(null)
@@ -17,19 +21,31 @@ export default function LoginPage() {
     try {
       const supabase = createClient()
 
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: `${location.origin}/auth/callback`,
-        },
-      })
+      if (isSignUp) {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+        })
+        if (error) throw error
 
-      if (error) throw error
+        setMessage({
+          type: 'success',
+          text: 'Account created! Logging you in...',
+        })
+        router.push('/dashboard')
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        })
+        if (error) throw error
 
-      setMessage({
-        type: 'success',
-        text: 'Enter your email below to receive a magic link. We&apos;ll create an account if you don&apos;t have one.',
-      })
+        setMessage({
+          type: 'success',
+          text: 'Welcome back! Redirecting...',
+        })
+        router.push('/dashboard')
+      }
     } catch (error) {
       setMessage({
         type: 'error',
@@ -53,7 +69,7 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-6">
+          <form onSubmit={handleAuth} className="space-y-6">
             <div>
               <label
                 htmlFor="email"
@@ -78,6 +94,30 @@ export default function LoginPage() {
               </div>
             </div>
 
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              >
+                Password
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-slate-400" aria-hidden="true" />
+                </div>
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  className="block w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md leading-5 bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  disabled={loading}
+                />
+              </div>
+            </div>
+
             {message && (
               <div
                 role="alert"
@@ -94,14 +134,31 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {loading ? 'Sending magic link...' : 'Send magic link'}
+              {loading ? (
+                <>
+                  <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4" />
+                  {isSignUp ? 'Creating account...' : 'Signing in...'}
+                </>
+              ) : (
+                isSignUp ? 'Create account' : 'Sign in'
+              )}
             </button>
           </form>
 
-          <p className="mt-6 text-center text-xs text-slate-500 dark:text-slate-400">
-            We&apos;ll email you a magic link for passwordless sign in
+          <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
+            {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
+            <button
+              type="button"
+              onClick={() => {
+                setIsSignUp(!isSignUp)
+                setMessage(null)
+              }}
+              className="font-medium text-primary-600 hover:text-primary-500 focus:outline-none transition-colors"
+            >
+              {isSignUp ? 'Sign in' : 'Sign up'}
+            </button>
           </p>
         </div>
       </div>

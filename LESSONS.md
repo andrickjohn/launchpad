@@ -253,3 +253,19 @@ Connecting to 'http://127.0.0.1:54321/auth/v1/otp' violates the following Conten
 ---
 
 **IMPORTANT:** Before building next component, review all lessons above and avoid repeating these mistakes.
+
+## Lesson: Unescaped Entities in Next.js Cause Vercel Deployment Failures
+**Date:** 2026-03-02
+**Component:** `app/error.tsx`, Deployment
+
+**Failure:** The local development environment worked perfectly, but the Vercel deployment would consistently fail. The local and Vercel versions were out of sync.
+**Root Cause:** A React unescaped entity (`'`) was used in `src/app/error.tsx` in a string like "Let's try to recover.". `npm run build` locally or on Vercel fails if a bare `'` is used inside JSX elements because it's considered unescaped by Next.js' strict ESLint rules during the build step. The `sync` script checks if the local Git tree is clean before triggering a deploy, but the Vercel deploy silently failed without failing the script.
+**Fix:** 
+1. Replaced the unescaped `'` with `&apos;` in `src/app/error.tsx`.
+2. Re-ran `npm run build` locally to verify the build succeeded.
+3. Used the `./sync` script to push the fix to GitHub, triggering a successful Vercel build.
+
+**Prevention:**
+- Remember that `next dev` doesn't enforce the same strictness as `next build`.
+- Always run `npm run build` when an issue occurs in production or staging deployments.
+- Pay attention to Vercel build logs if a deployment seems to have "frozen" in time or didn't go live.
