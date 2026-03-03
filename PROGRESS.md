@@ -285,3 +285,23 @@ Ready to launch! 🚀
 - Tests: Ran `npm run build` locally to reproduce and verify fixes
 - Issues: Addressed React unescaped entity issue preventing Vercel builds from completing
 - Time: ~30 minutes
+
+## CRM Database View — [Status: ✅ Complete]
+- Built: The global `crm/` route for a master prospect list with filters and search.
+- Built: A detailed Timeline Slideover blending `Outreach` history and `ActivityLog` explicitly tied to prospects.
+- Tests: Passed linter and `next build` types after refactoring specific `unknown` JSONB inference errors from Supabase. Minimal integration tests added to Playwright.
+- Issues: Supabase nested joins needed explicit typing and narrowing for React nodes.
+- Time: ~1 hour
+
+## Action Execution Pipeline — [Status: ✅ Complete]
+- Built: Enhanced ActionCard with 4-step pipeline indicator (Created → Reviewed → Approved → Executed)
+- Built: Execute button (🚀) for auto-executable actions (scrape_config, email_draft)
+- Built: Manual checkbox (☐/☑) for external tasks (manual_task, social_post)
+- Built: Guidance block for external actions with amber callout styling
+- Built: Execution result banner showing green confirmation after execution
+- Built: NEW API endpoint `/api/campaigns/[id]/actions/execute` dispatching to scrape/email/manual handlers
+- Built: CRM write-back via activity_log entries on all execution types
+- Built: Wired handleExecute into MissionControl.tsx
+- Tests: Passed linter, typecheck, and production build with zero errors
+- Issues: Fixed prefer-const lint, removed unused imports
+- Time: ~1 hour

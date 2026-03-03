@@ -99,6 +99,37 @@ export default function MissionControl({ campaign, initialActions }: MissionCont
     }
   }
 
+  const handleExecute = async (id: string) => {
+    try {
+      const res = await fetch(`/api/campaigns/${campaign.id}/actions/execute`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action_id: id }),
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Failed to execute')
+      }
+
+      const data = await res.json()
+
+      // Optimistic update: mark as completed with execution result
+      setActions((prev) =>
+        prev.map((a) =>
+          a.id === id
+            ? { ...a, status: 'completed' as ActionStatus, execution_result: data.result, executed_at: new Date().toISOString() } as CampaignAction
+            : a
+        )
+      )
+
+      success(data.result?.message || 'Action executed successfully!')
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to execute action'
+      error(message)
+    }
+  }
+
   const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
   return (
@@ -186,8 +217,10 @@ export default function MissionControl({ campaign, initialActions }: MissionCont
                 <ActionCard
                   key={action.id}
                   action={action}
+                  campaignId={campaign.id}
                   onStatusChange={handleStatusChange}
                   onContentUpdate={handleContentUpdate}
+                  onExecute={handleExecute}
                   mode="execute"
                 />
               ))}

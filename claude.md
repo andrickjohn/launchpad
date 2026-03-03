@@ -384,23 +384,25 @@ The deployment includes:
 Proceed? (yes/no)"
 ```
 
-### Handling Zombie Processes
+### Local Server & Zombie Process Protocol
 
 Background bash processes are 🟢 LOW RISK to kill. Do not prompt for approval.
 
+**Core Rule:** ALWAYS ensure the local development server is running freshly before asking the user to verify frontend changes or during the `/hello` workflow.
+
 **Protocol:**
-1. When background processes accumulate, kill them automatically
-2. Use `KillShell` for shell IDs I created
-3. Use `pkill -9 -f "next dev"` for Node processes
-4. Explain what was cleaned up afterward
+1. Before verification or user handoff, proactively clean up zombies and restart the server.
+2. Use `KillShell` for shell IDs you created.
+3. Use `lsof -i :3000 | awk 'NR!=1 {print $2}' | xargs -r kill -9` and `pkill -9 -f "next dev"` to decisively kill Node processes clogging port 3000.
+4. Start a fresh dev server: `npm run dev`.
+5. Explain what was cleaned up and restarted afterward (e.g. "Cleaned up background processes and started fresh dev server on port 3000").
 
 **Example:**
 ```
-User: "Start the dev server"
-Assistant: [Detects 14 zombie background processes]
-Assistant: [Automatically kills them with pkill]
-Assistant: [Starts clean dev server]
-Assistant: "Cleaned up 14 background processes and started fresh dev server on port 3000."
+User: "Test the new dashboard"
+Assistant: [Automatically kills zombie processes on port 3000 with lsof and pkill]
+Assistant: [Starts clean dev server with npm run dev]
+Assistant: "Cleaned up zombie processes and started a fresh dev server. You can now verify the dashboard at localhost:3000."
 ```
 
 ---

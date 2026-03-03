@@ -24,4 +24,11 @@ git status
 ```
 - Look for untracked files, modified files, or branch divergence and mention any strange behavior.
 
-4. Let the user know you're ready to launch!
+4. Ensure the local development server is running cleanly:
+// turbo-all
+```bash
+lsof -i :3000 | awk 'NR!=1 {print $2}' | xargs -r kill -9 && pkill -9 -f "next dev" || true && npm run dev &
+```
+- After running this, confirm that the local server is available at `localhost:3000`.
+
+5. Let the user know you're ready to launch!

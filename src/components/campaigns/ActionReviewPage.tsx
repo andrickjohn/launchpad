@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { ArrowLeft, CheckCircle2, Rocket } from 'lucide-react'
 import Link from 'next/link'
 import DayGroup from './DayGroup'
@@ -17,6 +17,21 @@ export default function ActionReviewPage({ campaign, initialActions }: ActionRev
   // router not needed yet
   const { toasts, removeToast, success, error } = useToast()
   const [actions, setActions] = useState(initialActions)
+  const [loading, setLoading] = useState(false)
+
+  const fetchActions = useCallback(async () => {
+    setLoading(true)
+    try {
+      const res = await fetch(`/api/campaigns/${campaign.id}/actions`)
+      if (!res.ok) throw new Error('Failed to fetch actions')
+      const data = await res.json()
+      setActions(data.actions)
+    } catch (err) {
+      error('Failed to refresh actions')
+    } finally {
+      setLoading(false)
+    }
+  }, [campaign.id, error])
 
   // Group by day
   const grouped = useMemo(() => {
@@ -52,16 +67,13 @@ export default function ActionReviewPage({ campaign, initialActions }: ActionRev
         throw new Error('Failed to update')
       }
     } catch {
-      // Revert
-      setActions((prev) =>
-        prev.map((a) => (a.id === id ? { ...a, status: initialActions.find((ia) => ia.id === id)?.status || 'pending' } : a))
-      )
+      // Revert on error
+      fetchActions()
       error('Failed to update action')
     }
   }
 
   const handleContentUpdate = async (id: string, content: CampaignAction['content'], title?: string) => {
-    // Optimistic update
     setActions((prev) =>
       prev.map((a) => (a.id === id ? { ...a, content, title: title || a.title } : a))
     )
@@ -76,10 +88,42 @@ export default function ActionReviewPage({ campaign, initialActions }: ActionRev
         body: JSON.stringify(body),
       })
 
-      if (!res.ok) throw new Error('Failed to save')
-      success('Changes saved')
+      if (!res.ok) throw new Error('Failed to update')
     } catch {
-      error('Failed to save changes')
+      // Revert
+      setActions((prev) =>
+        prev.map((a) => (a.id === id ? { ...a, status: initialActions.find((ia) => ia.id === id)?.status || 'pending' } : a))
+      )
+      error('Failed to update action content')
+    }
+  }
+
+  const handleExecute = async (id: string) => {
+    try {
+      const res = await fetch(`/api/campaigns/${campaign.id}/actions/execute`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action_id: id }),
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Failed to execute')
+      }
+
+      const data = await res.json()
+
+      // Optimistic update
+      setActions(prev => prev.map(a =>
+        a.id === id
+          ? { ...a, status: 'completed' as ActionStatus, execution_result: data.result, executed_at: new Date().toISOString() } as CampaignAction
+          : a
+      ))
+
+      success(data.result?.message || 'Action executed successfully!')
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to execute action'
+      error(message)
     }
   }
 
@@ -189,9 +233,11 @@ export default function ActionReviewPage({ campaign, initialActions }: ActionRev
             key={day}
             day={day}
             actions={grouped[day]}
+            campaignId={campaign.id}
             onStatusChange={handleStatusChange}
             onContentUpdate={handleContentUpdate}
             onApproveAll={handleApproveAll}
+            onExecute={handleExecute}
             mode="review"
             defaultExpanded={day === days[0]}
           />

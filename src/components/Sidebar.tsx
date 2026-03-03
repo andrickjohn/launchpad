@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Send, LayoutDashboard, LogOut, Settings, Rocket, X, Target } from 'lucide-react'
+import { Send, LayoutDashboard, LogOut, Settings, Rocket, X, Target, FolderOpen } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import packageInfo from '../../package.json'
@@ -10,6 +10,7 @@ import packageInfo from '../../package.json'
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Campaigns', href: '/prospects', icon: Target },
+  { name: 'CRM', href: '/crm', icon: FolderOpen },
   { name: 'Outreach', href: '/outreach', icon: Send },
 ]
 

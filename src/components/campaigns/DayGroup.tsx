@@ -8,9 +8,11 @@ import type { CampaignAction, ActionStatus } from '@/lib/types/database'
 interface DayGroupProps {
   day: number
   actions: CampaignAction[]
+  campaignId?: string
   onStatusChange: (id: string, status: ActionStatus) => void
   onContentUpdate: (id: string, content: CampaignAction['content'], title?: string) => void
   onApproveAll: (ids: string[]) => void
+  onExecute?: (id: string) => Promise<void>
   mode: 'review' | 'execute'
   defaultExpanded?: boolean
 }
@@ -20,9 +22,11 @@ const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Satu
 export default function DayGroup({
   day,
   actions,
+  campaignId,
   onStatusChange,
   onContentUpdate,
   onApproveAll,
+  onExecute,
   mode,
   defaultExpanded = false,
 }: DayGroupProps) {
@@ -107,8 +111,10 @@ export default function DayGroup({
             <ActionCard
               key={action.id}
               action={action}
+              campaignId={campaignId}
               onStatusChange={onStatusChange}
               onContentUpdate={onContentUpdate}
+              onExecute={onExecute}
               mode={mode}
             />
           ))}
