@@ -24,7 +24,7 @@ export type ActionStatus = 'pending' | 'approved' | 'rejected' | 'completed' | '
 
 export type ActionChannel = 'email' | 'linkedin' | 'reddit' | 'facebook' | 'scrape' | 'task'
 
-export type ActionType = 'email_draft' | 'social_post' | 'scrape_config' | 'manual_task'
+export type ActionType = 'email_draft' | 'email' | 'social_post' | 'scrape_config' | 'manual_task'
 
 export interface EmailActionContent {
   subject: string

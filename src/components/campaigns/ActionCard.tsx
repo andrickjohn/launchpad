@@ -56,7 +56,7 @@ const STATUS_STYLES: Record<ActionStatus, string> = {
 
 // Whether this action type can be auto-executed by the system
 function isAutoExecutable(actionType: string): boolean {
-  return actionType === 'scrape_config' || actionType === 'email_draft'
+  return actionType === 'scrape_config' || actionType === 'email_draft' || actionType === 'email'
 }
 
 // Whether this action is a manual/external task
@@ -203,7 +203,7 @@ export default function ActionCard({ action, campaignId: campaignIdProp, onStatu
 
   // ---------- Content Renderers ----------
   const renderContent = () => {
-    if (action.action_type === 'email_draft') {
+    if (action.action_type === 'email_draft' || action.action_type === 'email') {
       const c = (isEditing ? editContent : action.content) as Record<string, unknown>
       const subject = String(c.subject || '')
       const body = String(c.body || '')
@@ -545,7 +545,7 @@ export default function ActionCard({ action, campaignId: campaignIdProp, onStatu
                 >
                   <Pencil className="h-3.5 w-3.5" aria-hidden="true" /> Edit
                 </button>
-                {(action.action_type === 'email_draft' || action.action_type === 'social_post' || action.action_type === 'scrape_config') && (
+                {(action.action_type === 'email_draft' || action.action_type === 'email' || action.action_type === 'social_post' || action.action_type === 'scrape_config') && (
                   <button
                     onClick={(e) => { e.stopPropagation(); setShowAiRevise(!showAiRevise) }}
                     className={`inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${showAiRevise ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-700' : 'border border-purple-300 dark:border-purple-700 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'}`}
@@ -625,7 +625,7 @@ export default function ActionCard({ action, campaignId: campaignIdProp, onStatu
                 </button>
 
                 {/* AI Revise in execute mode */}
-                {(action.action_type === 'email_draft' || action.action_type === 'social_post' || action.action_type === 'scrape_config') && (
+                {(action.action_type === 'email_draft' || action.action_type === 'email' || action.action_type === 'social_post' || action.action_type === 'scrape_config') && (
                   <button
                     onClick={(e) => { e.stopPropagation(); setShowAiRevise(!showAiRevise) }}
                     className={`inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${showAiRevise ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-700' : 'border border-purple-300 dark:border-purple-700 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'}`}
