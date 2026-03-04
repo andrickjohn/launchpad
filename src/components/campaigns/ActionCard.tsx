@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
+import { usePathname } from 'next/navigation'
 import {
   Check,
   X,
@@ -75,7 +76,15 @@ function getPipelineStep(status: ActionStatus): number {
   }
 }
 
-export default function ActionCard({ action, campaignId, onStatusChange, onContentUpdate, onExecute, mode }: ActionCardProps) {
+export default function ActionCard({ action, campaignId: campaignIdProp, onStatusChange, onContentUpdate, onExecute, mode }: ActionCardProps) {
+  // Fallback: extract campaignId from URL if prop isn't passed
+  const pathname = usePathname()
+  const campaignId = useMemo(() => {
+    if (campaignIdProp) return campaignIdProp
+    // Extract from /campaigns/{id}/review or /campaigns/{id}/mission-control
+    const match = pathname?.match(/\/campaigns\/([^/]+)/)
+    return match ? match[1] : undefined
+  }, [campaignIdProp, pathname])
   const [isExpanded, setIsExpanded] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [editContent, setEditContent] = useState(action.content)
@@ -536,7 +545,7 @@ export default function ActionCard({ action, campaignId, onStatusChange, onConte
                 >
                   <Pencil className="h-3.5 w-3.5" aria-hidden="true" /> Edit
                 </button>
-                {campaignId && (action.action_type === 'email_draft' || action.action_type === 'social_post' || action.action_type === 'scrape_config') && (
+                {(action.action_type === 'email_draft' || action.action_type === 'social_post' || action.action_type === 'scrape_config') && (
                   <button
                     onClick={(e) => { e.stopPropagation(); setShowAiRevise(!showAiRevise) }}
                     className={`inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${showAiRevise ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-700' : 'border border-purple-300 dark:border-purple-700 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'}`}
@@ -616,7 +625,7 @@ export default function ActionCard({ action, campaignId, onStatusChange, onConte
                 </button>
 
                 {/* AI Revise in execute mode */}
-                {campaignId && (action.action_type === 'email_draft' || action.action_type === 'social_post' || action.action_type === 'scrape_config') && (
+                {(action.action_type === 'email_draft' || action.action_type === 'social_post' || action.action_type === 'scrape_config') && (
                   <button
                     onClick={(e) => { e.stopPropagation(); setShowAiRevise(!showAiRevise) }}
                     className={`inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${showAiRevise ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-700' : 'border border-purple-300 dark:border-purple-700 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'}`}
