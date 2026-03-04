@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useCallback, useEffect } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { ArrowLeft, CheckCircle2, Rocket } from 'lucide-react'
 import Link from 'next/link'
 import DayGroup from './DayGroup'
@@ -17,19 +17,14 @@ export default function ActionReviewPage({ campaign, initialActions }: ActionRev
   // router not needed yet
   const { toasts, removeToast, success, error } = useToast()
   const [actions, setActions] = useState(initialActions)
-  const [loading, setLoading] = useState(false)
-
   const fetchActions = useCallback(async () => {
-    setLoading(true)
     try {
       const res = await fetch(`/api/campaigns/${campaign.id}/actions`)
       if (!res.ok) throw new Error('Failed to fetch actions')
       const data = await res.json()
       setActions(data.actions)
-    } catch (err) {
+    } catch {
       error('Failed to refresh actions')
-    } finally {
-      setLoading(false)
     }
   }, [campaign.id, error])
 
