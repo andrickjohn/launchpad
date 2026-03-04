@@ -2,6 +2,8 @@
 description: Sync - stage, commit, and push current work to GitHub
 ---
 
+// turbo-all
+
 # /sync - Sync Progress with GitHub
 
 Commit and push all current work-in-progress to the remote repository. Also pulls changes safely if the remote is ahead.
@@ -9,7 +11,6 @@ Commit and push all current work-in-progress to the remote repository. Also pull
 ## Steps
 
 1. Fetch latest from remote and check for divergence:
-// turbo-all
 ```bash
 git fetch origin && git status -sb
 ```
@@ -33,6 +34,5 @@ git add -A
 
 5. Commit and push:
 ```bash
-git commit -m "[message]"
-git push origin main
+git commit -m "[message]" && git push origin main
 ```

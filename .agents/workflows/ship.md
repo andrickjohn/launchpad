@@ -2,6 +2,8 @@
 description: Ship - run pre-flight checks and deploy to production
 ---
 
+// turbo-all
+
 # /ship - Ship to GitHub
 
 Run pre-flight checks, commit, and push all current work-in-progress safely to the remote repository.
@@ -9,7 +11,6 @@ Run pre-flight checks, commit, and push all current work-in-progress safely to t
 ## Steps
 
 1. Fetch latest from remote and check for divergence:
-// turbo-all
 ```bash
 git fetch origin && git status -sb
 ```
@@ -26,9 +27,7 @@ git status -s
 
 4. If confirmed, ask for a commit message (default: "Update from launchpad terminal").
 
-5. Stage, commit, and push:
+5. Stage, commit, and push (batched):
 ```bash
-git add -A
-git commit -m "[message]"
-git push origin main
+git add -A && git commit -m "[message]" && git push origin main
 ```

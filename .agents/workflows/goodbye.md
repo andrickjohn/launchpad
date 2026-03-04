@@ -2,6 +2,8 @@
 description: Goodbye - wrap up, save all work, and leave a clean handoff note
 ---
 
+// turbo-all
+
 # /goodbye - Wrap Up the Session
 
 Log session notes, leave a message in a bottle for the next session, and say goodbye.

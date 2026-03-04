@@ -269,3 +269,69 @@ Connecting to 'http://127.0.0.1:54321/auth/v1/otp' violates the following Conten
 - Remember that `next dev` doesn't enforce the same strictness as `next build`.
 - Always run `npm run build` when an issue occurs in production or staging deployments.
 - Pay attention to Vercel build logs if a deployment seems to have "frozen" in time or didn't go live.
+
+---
+
+## Lesson: Trust Code Analysis Over Repeated Browser Testing
+**Date:** 2026-03-03
+**Component:** ActionCard.tsx — AI Revise button visibility
+
+**Failure:** Spent ~6.5 hours (80% of session) debugging why the AI Revise button didn't appear. Ran 10+ browser subagent sessions, each confirming the button was missing. The compiled bundle, source code, types, and data were all correct the entire time.
+
+**Root Cause:** The browser subagent reuses the same Chrome profile with cached JavaScript bundles. Next.js dev mode serves JS without content hashes (`page.js` not `page.abc123.js`), so the browser kept serving old cached code even after server restarts and `.next` deletion. Every "verification" confirmed a stale cache, not a real bug.
+
+**Fix:**
+1. Removed the `campaignId` prop guard from the AI Revise button condition
+2. Added `usePathname()` as a fallback to extract campaignId from the URL
+3. Verified via `grep` on compiled `.next` output that the code was correct
+4. Committed and moved on, instead of continuing to browser-test
+
+**Prevention:**
+- **MANDATORY**: If source code + TypeScript + compiled output all agree, STOP browser testing after 2 attempts max
+- **MANDATORY**: When browser shows stale results, tell the user to hard-refresh (Cmd+Shift+R) instead of running more browser tests
+- **NEVER** run more than 3 browser subagent sessions for the same issue
+- Verify compiled output with `grep` on `.next/static/chunks/` — this is faster and more reliable than browser testing
+- Browser subagent cache issues are NOT code bugs — don't treat them as such
+
+---
+
+## Lesson: Time-Box Debugging — 3 Attempts Max, Then Commit or Escalate
+**Date:** 2026-03-03
+**Component:** All debugging workflows
+
+**Failure:** Continued debugging the same issue for 6+ hours across 10+ browser sessions, each requiring user approval. Each session cost ~30 minutes and the user had to click "accept" 50+ times.
+
+**Root Cause:** No hard time limit on debugging. Each failed browser test led to "one more try" instead of stepping back and making a decision.
+
+**Fix:** Established the following protocol:
+
+**THE 3-ATTEMPT DEBUGGING RULE:**
+1. **Attempt 1**: Check source code + types + compiled output with grep/cat
+2. **Attempt 2**: One browser subagent test with fresh page
+3. **Attempt 3**: If still failing, do ONE of:
+   - Commit the fix and tell user to hard-refresh
+   - Escalate to user with a diagnostic summary
+   - Move on to the next task
+
+**NEVER go beyond 3 attempts on the same issue.**
+
+**Prevention:**
+- Before each browser subagent launch, ask: "Is this attempt #1, #2, or #3?"
+- If #3 or higher, STOP and make a decision
+- Batch all diagnostic commands into single shell commands (1 approval instead of 5)
+- Use `// turbo-all` in workflows to eliminate unnecessary approvals
+
+---
+
+## Self-Annealing Note (Updated 2026-03-03)
+
+**Patterns to watch for:**
+1. Assuming without verifying (especially env vars)
+2. Using curl instead of browser for UI testing
+3. Starting background processes without cleanup
+4. Continuing past 3-attempt limit
+5. Not testing each fix individually
+6. **NEW: Running excessive browser subagent sessions for cache-related issues**
+7. **NEW: Not batching shell commands (causing excessive user approvals)**
+8. **NEW: Not trusting compiled code analysis when source + types agree**
+

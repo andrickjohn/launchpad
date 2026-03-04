@@ -459,6 +459,55 @@ If you encounter something you cannot resolve after 3 attempts:
 
 ---
 
+## DEBUGGING TIME-BOX PROTOCOL (MANDATORY)
+
+**This protocol exists because we burned 6.5 hours on a browser cache issue on 2026-03-03.
+It MUST be followed for ALL debugging tasks.**
+
+### The 3-Attempt Rule for Browser Bugs
+
+1. **Attempt 1 — Code Analysis (no browser):**
+   - Check source code, TypeScript types, and compiled output with `grep`/`cat`
+   - Verify data with `curl` or API calls
+   - If source + types + compiled output ALL agree the code is correct → the bug is likely browser cache
+
+2. **Attempt 2 — One Browser Test:**
+   - Run ONE browser subagent session to verify
+   - If it fails but code analysis says it's correct → it's a cache issue
+
+3. **Attempt 3 — Decision Point:**
+   - If code analysis confirms correctness: **commit the fix and tell the user to hard-refresh (Cmd+Shift+R)**
+   - If code analysis shows a real bug: **fix it and commit**
+   - If unclear: **escalate to user with diagnostic summary**
+
+**NEVER run more than 3 browser subagent sessions for the same issue.**
+
+### Command Batching (Reduce Approvals)
+
+**ALWAYS batch related commands into ONE shell command:**
+
+❌ Bad (3 approvals):
+```
+kill processes → user approves
+rm -rf .next → user approves  
+npm run dev → user approves
+```
+
+✅ Good (1 approval):
+```bash
+lsof -i :3001 | awk 'NR!=1 {print $2}' | sort -u | xargs kill -9 2>/dev/null; pkill -9 -f "next" 2>/dev/null; rm -rf .next; sleep 2; npm run dev -- -p 3001
+```
+
+### Trust Compiled Code Over Browser Tests
+
+When debugging "UI doesn't show X":
+1. **First**: `grep "X" .next/static/chunks/**/*.js` — is it in the compiled output?
+2. **If yes**: The code is correct. Browser cache is stale. Tell user to Cmd+Shift+R.
+3. **If no**: The code has a real bug. Fix the source code.
+4. **Do NOT** launch 10 browser sessions trying to prove the same thing.
+
+---
+
 ## DEMO-READY GATE
 
 Before presenting any stage as "done" to the user, confirm:
